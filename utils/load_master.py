@@ -22,7 +22,8 @@ with open(sys.argv[1],errors='ignore') as ifile:
         "account":x.split(',')[1],
         "ammount":x.split(',')[2],
         "comment":x.split(',')[3],
-        "category":x.split(',')[4],
+        "payee":x.split(",")[4],
+        "category":x.split(',')[5],
         "injest_time":datetime.datetime.utcnow()} for x in data]
 
 logging.info('Inserting {0} records into database.'.format(len(data)))
