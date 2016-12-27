@@ -25,6 +25,7 @@ class Loaders:
         with open(fname,errors="replace") as f:
             transactions=[]
             for line in f:
+                if line.startswith('Number'): continue
                 line = line.lstrip(' ,').rstrip().split(',')
 
                 payee = line[4].split()[0]

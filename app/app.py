@@ -9,6 +9,9 @@ from pprint import pprint
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(levelname)s %(message)s')
 
+
+def user_choice(transaction)
+
 def main(**kwargs):
     dm = DataManager()
     loaders = Loaders()
@@ -16,8 +19,14 @@ def main(**kwargs):
 
     transactions = loaders.load_data(fname=kwargs['fname'], dtype=kwargs['dtype'])
     for transaction in transactions:
-        pprint(category_selector.suggest_category(transaction))
+        auto_found, transaction = category_selector.suggest_category(transaction)
 
+        if auto_found:
+            logging.info('Automatically selected category {0}, moving to next.'.format(transaction['category']))
+        else:
+            logging.info('Automatic proccessing did not meet THRESHOLDs, asking user for input...')
+
+        print(transaction)
 
 
 
