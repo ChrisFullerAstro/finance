@@ -9,9 +9,6 @@ from pprint import pprint
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(levelname)s %(message)s')
 
-
-def user_choice(transaction)
-
 def main(**kwargs):
     dm = DataManager()
     loaders = Loaders()

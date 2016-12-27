@@ -15,10 +15,7 @@ class DataManager(object):
 
         self.__connect_to_mongo()
         self.__index_mongo()
-
-        self.exact_matches = self.client.finance.exact_matches
         self.master = self.client.finance.master
-        self.suggestions = self.client.suggestions
 
     def __connect_to_mongo(self):
         while True:
@@ -33,6 +30,4 @@ class DataManager(object):
         self.client = client
 
     def __index_mongo(self):
-        self.client.finance.exact_matches.create_index([('comment', ASCENDING)])
-        self.client.finance.suggestions.create_index([('comment', ASCENDING)])
         self.client.finance.master.create_index([('comment', ASCENDING)])
