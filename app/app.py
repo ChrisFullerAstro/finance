@@ -1,31 +1,57 @@
-from data_manager import DataManager
-from loaders import Loaders
-from category_selector import Category_Selector
+import os
+from flask import Flask, request, redirect, url_for, send_from_directory, render_template
+from werkzeug.utils import secure_filename
+from models import data_manager, category_selector
 
-import sys
-import logging
-from pprint import pprint
+UPLOAD_FOLDER = '/Users/chrisfuller/Dropbox/Programs/finance_v2/finance/data/uploads/'
+ALLOWED_EXTENSIONS = set(['txt', 'csv'])
 
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s %(levelname)s %(message)s')
+app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-def main(**kwargs):
-    dm = DataManager()
-    loaders = Loaders()
-    category_selector = Category_Selector(dm)
+dm = data_manager.DataManager()
+cs = category_selector.Category_Selector(dm)
 
-    transactions = loaders.load_data(fname=kwargs['fname'], dtype=kwargs['dtype'])
-    for transaction in transactions:
-        auto_found, transaction = category_selector.suggest_category(transaction)
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-        if auto_found:
-            logging.info('Automatically selected category {0}, moving to next.'.format(transaction['category']))
-        else:
-            logging.info('Automatic proccessing did not meet THRESHOLDs, asking user for input...')
+@app.route('/', methods=['GET', 'POST'])
+def upload_file():
+    if request.method == 'POST':
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
 
-        print(transaction)
+        # if user does not select file, browser also
+        # submit a empty part without filename
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            dm.load_input_data(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+            transactions_with_suggestions = [cs.suggest_category(x)[1] for x in dm.input_data]
+            return render_template('data_viz.html', data=transactions_with_suggestions)
 
 
+            #return redirect(url_for('uploaded_file',filename=filename))
+    return '''
+    <!doctype html>
+    <title>Welcome</title>
+    <h1>Please Upload File</h1>
+    <form method=post enctype=multipart/form-data>
+      <p><input type=file name=file>
+         <input type=submit value=Upload>
+    </form>
+    '''
 
-if __name__ == "__main__":
-    main(fname=sys.argv[1], dtype=sys.argv[2])
+
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'],filename)
+app.run(debug=True)

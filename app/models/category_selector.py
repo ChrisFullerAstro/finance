@@ -11,9 +11,9 @@ class Category_Selector(object):
     """docstring for Category_Selector."""
     def __init__(self, dm):
         self.dm=dm
-        self.THRESHOLD_ACCEPT_LIKELYHOOD_EM=1.0
-        self.THRESHOLD_ACCEPT_LIKELYHOOD_LD=1.0
-        self.THRESHOLD_ACCEPT_DISTANCE=5.0
+        self.THRESHOLD_ACCEPT_LIKELYHOOD_EM=0.1
+        self.THRESHOLD_ACCEPT_LIKELYHOOD_LD=0.1
+        self.THRESHOLD_ACCEPT_DISTANCE=50.0
 
     def _likelyhood_matches(self,x):
         likelyhoods = [{'category':c, 'likelyhood':x.count(c)/float(len(x))}

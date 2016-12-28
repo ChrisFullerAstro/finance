@@ -12,13 +12,14 @@ class Loaders:
     def __init__(self):
         pass
 
-    def load_data(self,fname, dtype):
+    def load_data(self,fname, dtype='barclays'):
         if dtype == 'barclays':
             logging.info('Using barclays loaders')
             return self.load_barclays(fname)
         else:
             logging.info('Using barclaycard loaders')
             return self.load_barclaycard(fname)
+
 
     def load_barclays(self,fname):
         logging.info("Loading {0}".format(fname))
