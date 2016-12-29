@@ -32,6 +32,16 @@ class Category_Selector(object):
         else:
             raise Exception('Error with exact match')
 
+    def suggest_categoies_bulk(self, transactions):
+        ts=[cs.suggest_category(x)[0] for x in dm.input_data]
+
+        users_input_required = [t for ui,t in ts if ui]
+        automatic_classfied = [t for ui,t in ts if not ui]
+
+        logging.info('{0} Require User Classfication'.format(len(users_input_required)))
+        logging.info('{0} Automatic Classfication'.format(len(automatic_classfied)))
+        return automatic_classfied, users_input_required
+
     def suggest_category(self, transaction):
         logging.debug('Suggesting category for: {0}'.format(transaction['comment']))
 

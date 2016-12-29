@@ -33,22 +33,16 @@ def upload_file():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            dm.load_input_data(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            return redirect(url_for('process_transactions',filename=filename ))
 
-            transactions_with_suggestions = [cs.suggest_category(x)[1] for x in dm.input_data]
-            return render_template('data_viz.html', data=transactions_with_suggestions)
+    return render_template('upload.html')
 
-
-            #return redirect(url_for('uploaded_file',filename=filename))
-    return '''
-    <!doctype html>
-    <title>Welcome</title>
-    <h1>Please Upload File</h1>
-    <form method=post enctype=multipart/form-data>
-      <p><input type=file name=file>
-         <input type=submit value=Upload>
-    </form>
-    '''
+@app.route('/process_transactions/<filename>')
+def process_transactions(filename):
+    dm.load_input_data(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    transactions_with_suggestions = [cs.suggest_category(x) for x in dm.input_data]
+    print(transactions_with_suggestions[0])
+    return render_template('data_viz.html', data=transactions_with_suggestions)
 
 
 @app.route('/uploads/<filename>')
