@@ -9,7 +9,7 @@
           <th>Comment</th>
           <th>Category</th>
         </tr>
-         {% for obj in data %}
+         {% for obj in nauto_data %}
             <tr>
               <th> {{ obj.date }} </th>
               <!-- <th> {{ obj.account }} </th> -->
@@ -19,5 +19,10 @@
             </tr>
          {% endfor %}
       </table>
+      <form method=post >
+        <p>
+           <h6> Automatic Classfication OK? </h6>
+           <input type=submit value="OK">
+      </form>
    </body>
 </html>
