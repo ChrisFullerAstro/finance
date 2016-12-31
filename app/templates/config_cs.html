@@ -1,4 +1,6 @@
-<!doctype html>
+{% extends "layout.html" %}
+{% block content %}
+  <div class="configuration_cs">
   <title>Configuration</title>
   <h1>Configuration Parameters</h1>
   <form method=post enctype=multipart/form-data>
@@ -7,3 +9,4 @@
     <p><input type=text name="c" value=7>THRESHOLD_ACCEPT_DISTANCE<p>
       <input type=submit value="Submit">
   </form>
+{% endblock %}

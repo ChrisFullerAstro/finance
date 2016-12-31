@@ -1,7 +1,10 @@
-<!doctype html>
-  <title>Welcome</title>
+{% extends "layout.html" %}
+{% block content %}
+  <div class="upload_file">
+  <title>upload</title>
   <h1>Please Upload File</h1>
   <form method=post enctype=multipart/form-data>
     <p><input type=file name=file>
        <input type=submit value=Upload>
   </form>
+{% endblock %}
