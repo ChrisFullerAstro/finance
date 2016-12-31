@@ -16,6 +16,9 @@ class DataManager(object):
         self.__connect_to_mongo()
         self.__index_mongo()
         self.master = self.client.finance.master
+        self.categories_db = self.client.config.categories
+        self.categories = self.__update_categories()
+        self.processtransactions = self.client.finance.processtransactions
         self.input_data = None
 
     def __connect_to_mongo(self):
@@ -30,6 +33,10 @@ class DataManager(object):
                 time.sleep(10)
         self.client = client
 
+    def __update_categories(self):
+        return [x['sub_category'] for x in self.categories_db.find({})]
+
+
     def __index_mongo(self):
         self.client.finance.master.create_index([('comment', ASCENDING)])
 
@@ -37,3 +44,9 @@ class DataManager(object):
         l=loaders.Loaders()
         logging.info('Loading data into data manager')
         self.input_data = l.load_data(fname)
+
+    def save_transactions_bulk(self, transactions):
+        self.processtransactions.insert_many(transactions)
+
+    def save_transaction(self, transaction):
+        self.processtransactions.insert_one(transaction)

@@ -26,8 +26,6 @@ def welcome():
         if 'config' in request.form.values():
             return redirect(url_for('configuration_cs'))
 
-
-        #return render_template('config_cs.html')
     return render_template("welcome.html")
 
 
@@ -63,6 +61,7 @@ def upload_file():
 @app.route('/processtransactions/<filename>', methods=['GET', 'POST'])
 def processtransactions(filename):
     if request.method == 'POST':
+            # dm.save_transactions_bulk(
             return redirect(url_for('users_input_required'))
 
     dm.load_input_data(os.path.join(app.config['UPLOAD_FOLDER'], filename))
