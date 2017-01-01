@@ -18,23 +18,29 @@ def allowed_file(filename):
 
 
 @app.route('/', methods=['GET', 'POST'])
-def welcome():
-    if request.method =='POST':
-        if 'upload' in request.form.values():
-            return redirect(url_for('upload_file'))
+@app.route('/home', methods=['GET', 'POST'])
+def home():
+    # if request.method =='POST':
+    #     if 'upload' in request.form.values():
+    #         return redirect(url_for('upload_file'))
+    #
+    #     if 'config' in request.form.values():
+    #         return redirect(url_for('configuration_cs'))
 
-        if 'config' in request.form.values():
-            return redirect(url_for('configuration_cs'))
+    return render_template("home.html")
 
-    return render_template("welcome.html")
+
 
 
 @app.route('/configuration_cs', methods=['GET', 'POST'])
 def configuration_cs():
     if request.method =='POST':
-        return 'POST'
 
-    return render_template('config_cs.html')
+        return render_template('config_cs.html', **cs.get_config())
+
+    cs_config_data = cs.get_config()
+
+    return render_template('config_cs.html', **cs_config_data)
 
 
 @app.route('/upload_file', methods=['GET', 'POST'])
@@ -61,13 +67,17 @@ def upload_file():
 @app.route('/processtransactions/<filename>', methods=['GET', 'POST'])
 def processtransactions(filename):
     if request.method == 'POST':
-            # dm.save_transactions_bulk(
+            # ddm.save_transactions_bulk(
             return redirect(url_for('users_input_required'))
 
     dm.load_input_data(os.path.join(app.config['UPLOAD_FOLDER'], filename))
     automatic_classfied, users_input_required = cs.suggest_categoies_bulk(dm.input_data)
 
     return render_template('data_viz.html', auto_data=automatic_classfied, nauto_data=users_input_required)
+
+@app.route('/current_transactions')
+def current_transactions():
+    return render_template('render_data.html', data=dm.load_current_transactions())
 
 @app.route('/users_input_required', methods=['GET', 'POST'])
 def users_input_required():

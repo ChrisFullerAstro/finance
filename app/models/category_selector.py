@@ -1,7 +1,8 @@
 from collections import Counter
 import numpy as np
-
 import logging
+import datetime
+from pymongo import MongoClient, ASCENDING, DESCENDING
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s')
@@ -11,9 +12,38 @@ class Category_Selector(object):
     """docstring for Category_Selector."""
     def __init__(self, dm):
         self.dm=dm
-        self.THRESHOLD_ACCEPT_LIKELYHOOD_EM=0.1
-        self.THRESHOLD_ACCEPT_LIKELYHOOD_LD=0.1
-        self.THRESHOLD_ACCEPT_DISTANCE=50.0
+        self.get_config()
+
+    def get_config(self):
+        #config_data = dm.cs_config.find_one()
+        config_data = [x for x in self.dm.cs_config.find().sort('timestamp',DESCENDING).limit(1)]
+
+
+        if config_data == []:
+            config_data = {
+            "THRESHOLD_ACCEPT_LIKELYHOOD_EM" : 0.8,
+            "THRESHOLD_ACCEPT_LIKELYHOOD_LD" : 0.8,
+            "THRESHOLD_ACCEPT_DISTANCE" : 10.0,
+            "timestamp": int(datetime.datetime.utcnow().strftime('%s'))
+            }
+
+            self.update_cs_config(config_data)
+        else:
+            config_data = config_data[0]
+
+        self.THRESHOLD_ACCEPT_LIKELYHOOD_EM=config_data["THRESHOLD_ACCEPT_LIKELYHOOD_EM"]
+        self.THRESHOLD_ACCEPT_LIKELYHOOD_LD=config_data["THRESHOLD_ACCEPT_LIKELYHOOD_LD"]
+        self.THRESHOLD_ACCEPT_DISTANCE=config_data["THRESHOLD_ACCEPT_DISTANCE"]
+
+        return config_data
+
+    def update_cs_config(self, data):
+        data['timestamp'] = int(datetime.datetime.utcnow().strftime('%s'))
+        try:
+            dm.cs_config.insert_one(data)
+        except:
+            logging.error('Error updating cs_config')
+
 
     def _likelyhood_matches(self,x):
         likelyhoods = [{'category':c, 'likelyhood':x.count(c)/float(len(x))}

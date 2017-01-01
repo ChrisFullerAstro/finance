@@ -32,26 +32,14 @@ header h1.logo:hover {
   width: 1000px;
   margin: 0 auto;
 }
-div.upload_file {
+div.content {
   padding: 10px 0 30px 0;
   background-color: 	#ff80da;
   -webkit-border-radius: 6px;
      -moz-border-radius: 6px;
           border-radius: 6px;
 }
-div.configuration_cs {
-  padding: 10px 0 30px 0;
-  background-color: 	#ff80da;
-  -webkit-border-radius: 6px;
-     -moz-border-radius: 6px;
-          border-radius: 6px;
-}
-div.data_viz {
-  padding: 10px 0 30px 0;
-  background-color: 	#ff80da;
-  -webkit-border-radius: 6px;
-     -moz-border-radius: 6px;
-          border-radius: 6px;
+
 }
 h2 {
   font-size: 3em;

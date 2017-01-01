@@ -1,4 +1,4 @@
-from pymongo import MongoClient, ASCENDING
+from pymongo import MongoClient, ASCENDING, DESCENDING
 import datetime
 import sys
 import logging
@@ -18,6 +18,7 @@ class DataManager(object):
         self.master = self.client.finance.master
         self.categories_db = self.client.config.categories
         self.categories = self.__update_categories()
+        self.cs_config = self.client.config.cs_config
         self.processtransactions = self.client.finance.processtransactions
         self.input_data = None
 
@@ -50,3 +51,12 @@ class DataManager(object):
 
     def save_transaction(self, transaction):
         self.processtransactions.insert_one(transaction)
+
+    def load_current_transactions(self):
+        data = [x for x in self.processtransactions.find({})]
+        #data = [x for x in self.master.find({})]
+        logging.info('Returned {0} transactions from database'.format(len(data)))
+        return data
+
+    # def get_cs_config(self):
+    #     return [x for x in self.dm.cs_config.find({})]

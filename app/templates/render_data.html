@@ -1,7 +1,9 @@
 {% extends "layout.html" %}
 {% block content %}
-<div class="content">
-      <table border = 0>
+  <div class="content">
+    <h1>Current Stored Transactions</h1>
+<table cellpadding="1000" cellspacing="1000">
+  <td align="centre" valign="centre">
         <tr>
           <th>Date</th>
           <!-- <th>Account</th> -->
@@ -9,7 +11,7 @@
           <th>Comment</th>
           <th>Category</th>
         </tr>
-         {% for obj in nauto_data %}
+         {% for obj in data %}
             <tr>
               <th> {{ obj.date }} </th>
               <!-- <th> {{ obj.account }} </th> -->
@@ -18,10 +20,6 @@
               <th> {{ obj.category }} </th>
             </tr>
          {% endfor %}
+        </td>
       </table>
-      <form method=post >
-        <p>
-           <h2> Automatic Classfication OK? </h6>
-           <input type=submit value="OK">
-      </form>
 {% endblock %}
