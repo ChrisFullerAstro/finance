@@ -3,6 +3,9 @@ from flask import Flask, request, redirect, url_for, send_from_directory, render
 from werkzeug.utils import secure_filename
 from models import data_manager, category_selector
 from forms import forms
+import logging
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s %(levelname)s %(message)s')
 
 UPLOAD_FOLDER = '/Users/chrisfuller/Dropbox/Programs/finance_v2/finance/data/uploads/'
 ALLOWED_EXTENSIONS = set(['txt', 'csv'])
@@ -14,6 +17,41 @@ app.config['SECRET_KEY'] = 'you-will-never-guess'
 
 dm = data_manager.DataManager()
 cs = category_selector.Category_Selector(dm)
+
+
+@app.route('/users_input_required', methods=['GET', 'POST'])
+def users_input_required():
+    form = forms.ClassficationForm()
+    if request.method == 'POST':
+        # check if the post request has the file part
+        ct = dm.current_transaction
+        ct.update({'category':form.ctype.data})
+        dm.classfied.append(ct)
+
+    dm.get_new_transaction()
+    current_transaction = dm.current_transaction
+
+    if current_transaction:
+        form.ctype.choices=[]
+        for cat in ['House + Groceries', 'Other + Other', 'Leisure + Entertainment', 'House + Groceries']:
+            form.ctype.choices.append((cat, cat))
+
+        return render_template('user_classfier.html',
+            form=form,
+            t=current_transaction,
+            awaing_classfication=dm.require_user_class,
+            already_classfied=dm.classfied)
+    else:
+        return render_template('classfication_complete.html',data=dm.classfied)
+
+
+@app.route('/classfication_complete', methods=['GET', 'POST'])
+def classfication_complete():
+    all_classed = dm.classfied + dm.automatic_classfied
+    logging.info('{0} documents user classfied'.format(len(dm.classfied))
+    logging.info('{0} documents auto classfied'.format(len(dm.automatic_classfied))
+    logging.info('{0} total documents classfied'.format(len(all_classed))
+    return render_template("classfication_complete.html", data=dm.classfied + dm.automatic_classfied)
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -65,7 +103,11 @@ def upload_file():
 def processtransactions(filename):
     if request.method == 'POST':
             # ddm.save_transactions_bulk(
-            return redirect(url_for('users_input_required'))
+            if dm.users_input_required == []:
+                return redirect(url_for('users_input_required'))
+            else:
+                return redirect(url_for('classfication_complete'))
+
 
     dm.load_input_data(os.path.join(app.config['UPLOAD_FOLDER'], filename))
     automatic_classfied, users_input_required = cs.suggest_categoies_bulk(dm.input_data)
@@ -78,24 +120,6 @@ def processtransactions(filename):
 @app.route('/current_transactions')
 def current_transactions():
     return render_template('render_data.html', data=dm.load_current_transactions())
-
-@app.route('/users_input_required', methods=['GET', 'POST'])
-def users_input_required():
-    form = forms.ClassficationForm()
-    if request.method == 'POST':
-        # check if the post request has the file part
-        pass
-    transactions = dm.users_input_required
-
-    transactions=[{'comment': 'COFFEE#1 FRIARS WA ON 08 DEC BCC', 'suggestions:': ['House + Groceries', 'Other + Other', 'Leisure + Entertainment', 'House + Groceries'], 'tag': 'PAYMENT', 'ammount': '-10.05', 'account': '20-60-64 13010430', 'payee': 'COFFEE#1', 'date': '09/12/2016'}]
-    t=transactions[0]#.pop(0)
-
-    # for cat in t['suggestions']:
-    for cat in ['House + Groceries', 'Other + Other', 'Leisure + Entertainment', 'House + Groceries']:
-        form.ctype.choices.append((cat, cat))
-
-    return render_template('user_classfier.html',form=form,t=t)
-    #return 'Users Input Required'
 
 
 

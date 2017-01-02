@@ -3,13 +3,64 @@
   <div class="content">
     <h1>Please Classify Transaction</h1>
     <br>
-    <h3> {{ t.date }}  {{ t.ammount }}  {{ t.comment }} </h3><br>
+    <form method=post >
+    <table class="table table-striped">
+            <thead class="thead-inverse">
+              <tr>
+                <th>Date</th>
+                <th>Ammount</th>
+                <th>Comment</th>
+                <th>Category</th>
+                <th> </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for x in already_classfied %}
+              <tr>
+                <th> {{ x.date }} </th>
+                <th> {{ x.ammount }} </th>
+                <th> {{ x.comment }} </th>
+                <th> {{ x.category }} </th>
+                <th>  </th>
+              </tr>
+              {% endfor %}
+              {% if t %}
+              <tr>
+                <th> {{ t.date }} </th>
+                <th> {{ t.ammount }} </th>
+                <th> {{ t.comment }} </th>
+                <th class="dropdown">{{ form.ctype() }}</th>
+                <th>
+                  <div class="control-group">
+                         <div class="controls">
+                             <input class="btn btn-primary" type="submit" value="Submit">
+                         </div>
+                  </div>
+                </th>
+              </tr>
+              {% endif %}
+              <tr>
+              </tr>
+              {% for obj in awaing_classfication %}
+              <tr>
+                <th> {{ obj.date }} </th>
+                <th> {{ obj.ammount }} </th>
+                <th> {{ obj.comment }} </th>
+                <th>  </th>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+    <br><br>
+      </form>
+{% if not t %}
+<br>
 
-    <div class="dropdown">{{ form.ctype() }}</div><br><br>
-<div class="control-group">
-       <div class="controls">
-           <input class="btn btn-primary" type="submit" value="Classify">
-       </div>
-   </div>
-  </div>
+    <div class="control-group">
+           <div class="controls">
+               <input class="btn btn-primary" type="submit" value="Classfication Complete">
+           </div>
+    </div>
+
+{% endif %}
 {% endblock %}

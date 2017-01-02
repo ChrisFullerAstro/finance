@@ -18,3 +18,4 @@ class UploadForm(FlaskForm):
 
 class ClassficationForm(FlaskForm):
     ctype =  SelectField('Category Type', choices=[])
+    
