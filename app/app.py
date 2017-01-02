@@ -87,7 +87,7 @@ def processtransactions(filename):
     dm.load_input_data(os.path.join(app.config['UPLOAD_FOLDER'], filename))
     automatic_classfied, users_input_required = cs.suggest_categoies_bulk(dm.input_data)
 
-    return render_template('data_viz.html', auto_data=automatic_classfied, nauto_data=users_input_required)
+    return render_template('data_viz.html', data=automatic_classfied)
 
 @app.route('/current_transactions')
 def current_transactions():
