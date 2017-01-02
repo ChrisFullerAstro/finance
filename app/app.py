@@ -23,21 +23,12 @@ def allowed_file(filename):
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/home', methods=['GET', 'POST'])
 def home():
-    # if request.method =='POST':
-    #     if 'upload' in request.form.values():
-    #         return redirect(url_for('upload_file'))
-    #
-    #     if 'config' in request.form.values():
-    #         return redirect(url_for('configuration_cs'))
-
     return render_template("home.html")
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = forms.LoginForm()
-    return render_template('login.html',
-                           form=form)
-
+    return render_template('login.html', form=form)
 
 @app.route('/configuration_cs', methods=['GET', 'POST'])
 def configuration_cs():
@@ -56,18 +47,7 @@ def configuration_cs():
     form.TA_likelyhood_em.data = str(cs_config_data['THRESHOLD_ACCEPT_LIKELYHOOD_EM'])
     form.TA_likelyhood_ld.data = str(cs_config_data['THRESHOLD_ACCEPT_LIKELYHOOD_LD'])
 
-
     return render_template('config.html', form=form, updated=updated)
-
-# @app.route('/configuration_cs', methods=['GET', 'POST'])
-# def configuration_cs():
-#     if request.method =='POST':
-#
-#         return render_template('config_cs.html', **cs.get_config())
-#
-#     cs_config_data = cs.get_config()
-#
-#     return render_template('config_cs.html', **cs_config_data)
 
 @app.route('/upload_file', methods=['GET', 'POST'])
 def upload_file():
@@ -80,26 +60,6 @@ def upload_file():
         filename = None
     return render_template('upload2.html', form=form)
 
-# @app.route('/upload_file', methods=['GET', 'POST'])
-# def upload_file():
-#     if request.method == 'POST':
-#         # check if the post request has the file part
-#         if 'file' not in request.files:
-#             flash('No file part')
-#             return redirect(request.url)
-#         file = request.files['file']
-#
-#         # if user does not select file, browser also
-#         # submit a empty part without filename
-#         if file.filename == '':
-#             flash('No selected file')
-#             return redirect(request.url)
-#         if file and allowed_file(file.filename):
-#             filename = secure_filename(file.filename)
-#             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-#             return redirect(url_for('processtransactions',filename=filename))
-#
-#     return render_template('upload.html')
 
 @app.route('/processtransactions/<filename>', methods=['GET', 'POST'])
 def processtransactions(filename):
@@ -126,7 +86,5 @@ def users_input_required():
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'],filename)
-
-
 
 app.run(debug=True)
