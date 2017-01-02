@@ -42,15 +42,20 @@ def users_input_required():
             awaing_classfication=dm.require_user_class,
             already_classfied=dm.classfied)
     else:
-        return render_template('classfication_complete.html',data=dm.classfied)
+        return redirect(url_for('classfication_complete'))
 
 
 @app.route('/classfication_complete', methods=['GET', 'POST'])
 def classfication_complete():
+    if request.method == 'POST':
+        dm.save_transactions_bulk(dm.classfied + dm.automatic_classfied)
+        dm = data_manager.DataManager()
+        cs = category_selector.Category_Selector(dm)
+        return redirect(url_for('home'))
     all_classed = dm.classfied + dm.automatic_classfied
-    logging.info('{0} documents user classfied'.format(len(dm.classfied))
-    logging.info('{0} documents auto classfied'.format(len(dm.automatic_classfied))
-    logging.info('{0} total documents classfied'.format(len(all_classed))
+    logging.info('{0} documents user classfied'.format(len(dm.classfied)))
+    logging.info('{0} documents auto classfied'.format(len(dm.automatic_classfied)))
+    logging.info('{0} total documents classfied'.format(len(all_classed)))
     return render_template("classfication_complete.html", data=dm.classfied + dm.automatic_classfied)
 
 def allowed_file(filename):

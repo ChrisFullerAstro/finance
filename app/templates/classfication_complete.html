@@ -2,13 +2,21 @@
 {% block content %}
   <div class="content">
     <h1>Classfication Complete</h1>
-    <h2>All the transactions are classfied, verfy they are correcly classfied and input into master.</h2>
+    <h4>All the transactions are classfied, verfy they are correcly classfied and input into master.</h4>
+    <form action="" method="post" name="config">
+        <div class="control-group">
+               <div class="controls">
+                   <input class="btn btn-primary" type="submit" value="Accept">
+               </div>
+           </div>
+    </form>
+    <br>
+    <br>
 <table class="table table-striped">
         <thead class="thead-inverse">
           <tr>
             <th>#</th>
             <th>Date</th>
-            <!-- <th>Account</th> -->
             <th>Ammount</th>
             <th>Comment</th>
             <th>Category</th>
@@ -26,6 +34,8 @@
             <th> {{ obj.category }} </th>
           </tr>
           {% endfor %}
+          {% else %}
+          <h6>No transactions found, please upload a file.</h6>
           {% endif %}
         </tbody>
       </table>
