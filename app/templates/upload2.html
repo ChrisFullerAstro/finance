@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% block content %}
+  <div class="content">
+  <title>upload</title>
+  <h1>Please Upload File</h1>
+  <form action="" method="post" name="upload" enctype="multipart/form-data">
+      {{ form.hidden_tag() }}
+          <br>
+          <div>{{ form.file_name() }}</div><br>
+          <div class="dropdown">{{ form.dtype() }}</div><br>
+      <div class="control-group">
+             <div class="controls">
+                 <input class="btn btn-primary" type="submit" value="Upload">
+             </div>
+         </div>
+  </form>
+{% endblock %}
