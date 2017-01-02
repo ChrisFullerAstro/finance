@@ -37,12 +37,12 @@ class Category_Selector(object):
 
         return config_data
 
-    def update_cs_config(self, data):
+    def update_cs_config(self,dm, data):
         data['timestamp'] = int(datetime.datetime.utcnow().strftime('%s'))
         try:
             dm.cs_config.insert_one(data)
-        except:
-            logging.error('Error updating cs_config')
+        except Exception as e:
+            logging.error(e)
 
 
     def _likelyhood_matches(self,x):

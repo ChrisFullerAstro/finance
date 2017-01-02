@@ -41,10 +41,23 @@ def login():
 
 @app.route('/configuration_cs', methods=['GET', 'POST'])
 def configuration_cs():
-    cs_config_data = cs.get_config()
+    updated = ''
     form = forms.ConfigForm()
+    if request.method == 'POST' and form.validate():
+        cs.update_cs_config(dm,{
+                    "THRESHOLD_ACCEPT_DISTANCE": float(form.TA_distance.data),
+                    "THRESHOLD_ACCEPT_LIKELYHOOD_EM":float(form.TA_likelyhood_em.data),
+                    "THRESHOLD_ACCEPT_LIKELYHOOD_LD":float(form.TA_likelyhood_ld.data)
+                        })
+        updated='configuration updated'
 
-    return render_template('config.html', form=form, **cs_config_data)
+    cs_config_data = cs.get_config()
+    form.TA_distance.data = str(cs_config_data['THRESHOLD_ACCEPT_DISTANCE'])
+    form.TA_likelyhood_em.data = str(cs_config_data['THRESHOLD_ACCEPT_LIKELYHOOD_EM'])
+    form.TA_likelyhood_ld.data = str(cs_config_data['THRESHOLD_ACCEPT_LIKELYHOOD_LD'])
+
+
+    return render_template('config.html', form=form, updated=updated)
 
 # @app.route('/configuration_cs', methods=['GET', 'POST'])
 # def configuration_cs():
