@@ -2,12 +2,15 @@ import os
 from flask import Flask, request, redirect, url_for, send_from_directory, render_template
 from werkzeug.utils import secure_filename
 from models import data_manager, category_selector
+from forms import forms
 
 UPLOAD_FOLDER = '/Users/chrisfuller/Dropbox/Programs/finance_v2/finance/data/uploads/'
 ALLOWED_EXTENSIONS = set(['txt', 'csv'])
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['WTF_CSRF_ENABLED'] = True
+app.config['SECRET_KEY'] = 'you-will-never-guess'
 
 dm = data_manager.DataManager()
 cs = category_selector.Category_Selector(dm)
@@ -29,18 +32,29 @@ def home():
 
     return render_template("home.html")
 
-
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = forms.LoginForm()
+    return render_template('login.html',
+                           form=form)
 
 
 @app.route('/configuration_cs', methods=['GET', 'POST'])
 def configuration_cs():
-    if request.method =='POST':
-
-        return render_template('config_cs.html', **cs.get_config())
-
     cs_config_data = cs.get_config()
+    form = forms.ConfigForm()
 
-    return render_template('config_cs.html', **cs_config_data)
+    return render_template('config.html', form=form, **cs_config_data)
+
+# @app.route('/configuration_cs', methods=['GET', 'POST'])
+# def configuration_cs():
+#     if request.method =='POST':
+#
+#         return render_template('config_cs.html', **cs.get_config())
+#
+#     cs_config_data = cs.get_config()
+#
+#     return render_template('config_cs.html', **cs_config_data)
 
 
 @app.route('/upload_file', methods=['GET', 'POST'])

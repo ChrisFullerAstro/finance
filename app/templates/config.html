@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+{% block content %}
+  <div class="content">
+    <title>Configuration</title>
+    <h1>Configuration Parameters</h1>
+  <form action="" method="post" name="config">
+      {{ form.hidden_tag() }}
+      <p>
+          Please enter your updated parameters :<br>
+          <!-- {{ form.TA_likelyhood_ld(size=5) }}<br> -->
+          <div>{{ form.TA_likelyhood_ld(class="css_class") }} {{ form.TA_likelyhood_ld.label }}</div>
+          <div>{{ form.TA_likelyhood_em(class="css_class") }} {{ form.TA_likelyhood_em.label }}</div>
+          <div>{{ form.TA_distance(class="css_class") }} {{ form.TA_distance.label }}</div>
+          <!-- {{ form.TA_likelyhood_em(size=5) }}<br> -->
+          <!-- {{ form.TA_distance(size=5) }}<br> -->
+      </p>
+      <div class="control-group">
+             <div class="controls">
+                 <input class="btn btn-primary" type="submit" value="Change">
+             </div>
+         </div>
+  </form>
+{% endblock %}
