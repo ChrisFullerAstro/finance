@@ -70,6 +70,9 @@ def processtransactions(filename):
     dm.load_input_data(os.path.join(app.config['UPLOAD_FOLDER'], filename))
     automatic_classfied, users_input_required = cs.suggest_categoies_bulk(dm.input_data)
 
+    dm.automatic_classfied = automatic_classfied
+    dm.users_input_required = users_input_required
+
     return render_template('data_viz.html', data=automatic_classfied)
 
 @app.route('/current_transactions')
@@ -78,10 +81,23 @@ def current_transactions():
 
 @app.route('/users_input_required', methods=['GET', 'POST'])
 def users_input_required():
+    form = forms.ClassficationForm()
     if request.method == 'POST':
         # check if the post request has the file part
-        return 'POST'
-    return 'Users Input Required'
+        pass
+    transactions = dm.users_input_required
+
+    transactions=[{'comment': 'COFFEE#1 FRIARS WA ON 08 DEC BCC', 'suggestions:': ['House + Groceries', 'Other + Other', 'Leisure + Entertainment', 'House + Groceries'], 'tag': 'PAYMENT', 'ammount': '-10.05', 'account': '20-60-64 13010430', 'payee': 'COFFEE#1', 'date': '09/12/2016'}]
+    t=transactions[0]#.pop(0)
+
+    # for cat in t['suggestions']:
+    for cat in ['House + Groceries', 'Other + Other', 'Leisure + Entertainment', 'House + Groceries']:
+        form.ctype.choices.append((cat, cat))
+
+    return render_template('user_classfier.html',form=form,t=t)
+    #return 'Users Input Required'
+
+
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):

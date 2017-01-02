@@ -15,3 +15,6 @@ class ConfigForm(FlaskForm):
 class UploadForm(FlaskForm):
     file_name = FileField('Data File')
     dtype =  SelectField('Data Type', choices=[('barclays','Barclays'), ('barclaycard','Barclaycard')])
+
+class ClassficationForm(FlaskForm):
+    ctype =  SelectField('Category Type', choices=[])

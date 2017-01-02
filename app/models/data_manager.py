@@ -21,6 +21,8 @@ class DataManager(object):
         self.cs_config = self.client.config.cs_config
         self.processtransactions = self.client.finance.processtransactions
         self.input_data = None
+        self.automatic_classfied = None
+        self.users_input_required = None
 
     def __connect_to_mongo(self):
         while True:

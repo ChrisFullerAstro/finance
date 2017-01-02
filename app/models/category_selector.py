@@ -65,8 +65,8 @@ class Category_Selector(object):
     def suggest_categoies_bulk(self, transactions):
         ts=[self.suggest_category(x) for x in transactions]
 
-        users_input_required = [t for ui,t in ts if ui]
-        automatic_classfied = [t for ui,t in ts if not ui]
+        users_input_required = [t for ui,t in ts if not ui]
+        automatic_classfied = [t for ui,t in ts if ui]
 
         logging.info('{0} Require User Classfication'.format(len(users_input_required)))
         logging.info('{0} Automatic Classfication'.format(len(automatic_classfied)))
