@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{% block content %}
+  <div class="content">
+  <title>upload</title>
+  <h1>Please Upload File</h1>
+  <form method=post enctype=multipart/form-data>
+    <input type=file name=file class="btn btn-outline-primary">
+      <input type=text name=dtype value=barclays>
+       <!-- <input type=submit value=Upload> -->
+       <button type="submit" aria-pressed="true" class="btn btn-outline-primary">Process Data</button>
+  </form>
+{% endblock %}

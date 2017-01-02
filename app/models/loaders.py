@@ -12,7 +12,7 @@ class Loaders:
     def __init__(self):
         pass
 
-    def load_data(self,fname, dtype):
+    def load_data(self,fname, dtype='barclays'):
         if dtype == 'barclays':
             logging.info('Using barclays loaders')
             return self.load_barclays(fname)
@@ -20,11 +20,13 @@ class Loaders:
             logging.info('Using barclaycard loaders')
             return self.load_barclaycard(fname)
 
+
     def load_barclays(self,fname):
         logging.info("Loading {0}".format(fname))
         with open(fname,errors="replace") as f:
             transactions=[]
             for line in f:
+                if line.startswith('Number'): continue
                 line = line.lstrip(' ,').rstrip().split(',')
 
                 payee = line[4].split()[0]

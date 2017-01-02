@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{% block content %}
+  <div class="content">
+  <title>Configuration</title>
+  <h1>Configuration Parameters</h1>
+  <form method=post enctype=multipart/form-data>
+    <p><input type=text name="a" value=0.5>THRESHOLD_ACCEPT_LIKELYHOOD_LD<p>
+    <p><input type=text name="b" value=0.5>THRESHOLD_ACCEPT_LIKELYHOOD_EM<p>
+    <p><input type=text name="c" value=7>THRESHOLD_ACCEPT_DISTANCE<p>
+      <input type=submit value="Submit">
+  </form>
+{% endblock %}
