@@ -8,22 +8,9 @@ from models import loaders
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(levelname)s %(message)s')
 
-class DummyDataManager:
-    def __init__(self):
 
-        self.require_user_class =[
-            {'comment': 'Surfing Shop', 'suggestions:': ['Leisure + Entertainment', 'House + Groceries'], 'tag': 'PAYMENT', 'ammount': '-1000.0', 'account': '20-60-64 13010430', 'payee': 'surf', 'date': '09/12/2016'},
-            {'comment': 'Coffee Shop', 'suggestions:': ['Leisure + Entertainment', 'House + Groceries'], 'tag': 'PAYMENT', 'ammount': '-100.0', 'account': '20-60-64 13010430', 'payee': 'coffee#2', 'date': '10/12/2016'},
-            {'comment': 'Baby Shop', 'suggestions:': ['Leisure + Entertainment', 'House + Groceries'], 'tag': 'PAYMENT', 'ammount': '-10.0', 'account': '20-60-64 13010430', 'payee': 'babysrus', 'date': '11/12/2016'}
-                    ]
-        self.classfied=[]
-        self.current_transaction = None
 
-    def get_new_transaction(self):
-        try:
-            self.current_transaction = self.require_user_class.pop(0)
-        except IndexError:
-            self.current_transaction = None
+
 
 class DataManager(object):
     """docstring for DataManager"""

@@ -1,22 +1,52 @@
 import os
-from flask import Flask, request, redirect, url_for, send_from_directory, render_template
+from flask import Flask, request, redirect, url_for, send_from_directory, render_template, session
 from werkzeug.utils import secure_filename
+# from flask.ext.pymongo import PyMongo
+from flask_pymongo import PyMongo
 from models import data_manager, category_selector
 from forms import forms
 import logging
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(levelname)s %(message)s')
 
-UPLOAD_FOLDER = '/Users/chrisfuller/Dropbox/Programs/finance_v2/finance/data/uploads/'
 ALLOWED_EXTENSIONS = set(['txt', 'csv'])
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['WTF_CSRF_ENABLED'] = True
-app.config['SECRET_KEY'] = 'you-will-never-guess'
+app.config.from_pyfile('config.py')
+db_finance = PyMongo(app)
+db_config = PyMongo(app, config_prefix='MONGO2')
 
-dm = data_manager.DataManager()
-cs = category_selector.Category_Selector(dm)
+#db_finance.db.master.find_one()
+
+@app.route('/', methods=['GET', 'POST'])
+@app.route('/home', methods=['GET', 'POST'])
+def home():
+    return render_template('home.html')
+
+#done down to here
+
+
+@app.route('/configuration_cs', methods=['GET', 'POST'])
+def configuration_cs():
+    updated = ''
+    form = forms.ConfigForm()
+    if request.method == 'POST' and form.validate():
+        cs.update_cs_config(dm,{
+                    "THRESHOLD_ACCEPT_DISTANCE": float(form.TA_distance.data),
+                    "THRESHOLD_ACCEPT_LIKELYHOOD_EM":float(form.TA_likelyhood_em.data),
+                    "THRESHOLD_ACCEPT_LIKELYHOOD_LD":float(form.TA_likelyhood_ld.data)
+                        })
+        updated='configuration updated'
+
+    cs_config_data = cs.get_config()
+    form.TA_distance.data = str(cs_config_data['THRESHOLD_ACCEPT_DISTANCE'])
+    form.TA_likelyhood_em.data = str(cs_config_data['THRESHOLD_ACCEPT_LIKELYHOOD_EM'])
+    form.TA_likelyhood_ld.data = str(cs_config_data['THRESHOLD_ACCEPT_LIKELYHOOD_LD'])
+
+    return render_template('config.html', form=form, updated=updated)
+
+
+
 
 
 @app.route('/users_input_required', methods=['GET', 'POST'])
@@ -63,34 +93,14 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-@app.route('/', methods=['GET', 'POST'])
-@app.route('/home', methods=['GET', 'POST'])
-def home():
-    return render_template("home.html")
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = forms.LoginForm()
     return render_template('login.html', form=form)
 
-@app.route('/configuration_cs', methods=['GET', 'POST'])
-def configuration_cs():
-    updated = ''
-    form = forms.ConfigForm()
-    if request.method == 'POST' and form.validate():
-        cs.update_cs_config(dm,{
-                    "THRESHOLD_ACCEPT_DISTANCE": float(form.TA_distance.data),
-                    "THRESHOLD_ACCEPT_LIKELYHOOD_EM":float(form.TA_likelyhood_em.data),
-                    "THRESHOLD_ACCEPT_LIKELYHOOD_LD":float(form.TA_likelyhood_ld.data)
-                        })
-        updated='configuration updated'
 
-    cs_config_data = cs.get_config()
-    form.TA_distance.data = str(cs_config_data['THRESHOLD_ACCEPT_DISTANCE'])
-    form.TA_likelyhood_em.data = str(cs_config_data['THRESHOLD_ACCEPT_LIKELYHOOD_EM'])
-    form.TA_likelyhood_ld.data = str(cs_config_data['THRESHOLD_ACCEPT_LIKELYHOOD_LD'])
-
-    return render_template('config.html', form=form, updated=updated)
 
 @app.route('/upload_file', methods=['GET', 'POST'])
 def upload_file():
