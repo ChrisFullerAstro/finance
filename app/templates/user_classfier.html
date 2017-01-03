@@ -15,6 +15,7 @@
               </tr>
             </thead>
             <tbody>
+              {% if already_classfied %}
               {% for x in already_classfied %}
               <tr>
                 <th> {{ x.date }} </th>
@@ -24,6 +25,7 @@
                 <th>  </th>
               </tr>
               {% endfor %}
+              {% endif %}
               {% if t %}
               <tr>
                 <th> {{ t.date }} </th>
@@ -41,6 +43,7 @@
               {% endif %}
               <tr>
               </tr>
+              {% if awaing_classfication %}
               {% for obj in awaing_classfication %}
               <tr>
                 <th> {{ obj.date }} </th>
@@ -49,6 +52,7 @@
                 <th>  </th>
               </tr>
               {% endfor %}
+              {% endif %}
             </tbody>
           </table>
     <br><br>

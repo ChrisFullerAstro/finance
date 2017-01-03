@@ -11,4 +11,5 @@ MONGO_PORT = 5001
 MONGO_DBNAME = 'finance'
 
 #Mongo Config
+MONGO2_PORT = 5001
 MONGO2_DBNAME = 'config'

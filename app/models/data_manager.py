@@ -9,9 +9,6 @@ logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(levelname)s %(message)s')
 
 
-
-
-
 class DataManager(object):
     """docstring for DataManager"""
     def __init__(self):
