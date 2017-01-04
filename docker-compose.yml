@@ -1,13 +1,11 @@
-version: '2'
-services:
-  web:
-    build: .
-    ports:
+web:
+  build: .
+  command: python -u app/app.py
+  ports:
     - "5000:5000"
-    volumes:
-    - .:/code
-    - logvolume01:/var/log
-    links:
-    - redis
-  redis:
-    image: redisf
+  volumes:
+    - .:/finance
+  links:
+    - db
+db:
+  image: mongo
