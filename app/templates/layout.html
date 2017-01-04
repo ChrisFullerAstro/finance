@@ -4,7 +4,11 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}{% endblock %}Finance App</title>
+  {% if title %}
+<title>{{ title }} - Finance App</title>
+{% else %}
+<title>Finance App</title>
+{% endif %}
   <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}"> -->
 
   <!-- Bootstrap -->
@@ -34,16 +38,27 @@
         <li><a href="{{ url_for('login') }}">User Login</a></li>
 
       </ul>
-
       </ul>
+
     </div><!-- /.navbar-collapse -->
+
   </div><!-- /.container-fluid -->
+
 </nav>
     </header>
     <br><br><br><br>
     <div class="container">
-      {% block content %}
-      {% endblock %}
+      <hr>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}" role="alert">
+            <strong>{{ message }} </strong>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
     </div>
     <!-- jQuery for Bootstrap -->
     <!-- <script src=""></script> -->
