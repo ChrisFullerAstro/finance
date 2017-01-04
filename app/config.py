@@ -4,7 +4,7 @@ UPLOAD_FOLDER = '/Users/chrisfuller/Dropbox/Programs/finance_v2/finance/data/upl
 WTF_CSRF_ENABLED = True
 SECRET_KEY = 'you-will-never-guess'
 DEBUG = True
-HOST = '0.0.0.0'
+
 
 #Mongo Finance Config
 MONGO_PORT = 5001
