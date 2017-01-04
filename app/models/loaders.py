@@ -8,7 +8,16 @@ import logging
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(levelname)s %(message)s')
 
-
+def filter_dicts(objs, keys):
+    temp=[]
+    for obj in objs:
+        logging.error('{0}'.format(str(obj)))
+        fobj={}
+        for k,v in obj.items():
+            if k in keys:
+                fobj[k] = v
+        temp.append(fobj)
+    return temp
 
 def load_data(fname, dtype='barclays'):
     if dtype == 'barclays':

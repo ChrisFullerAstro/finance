@@ -55,20 +55,35 @@ def configuration_cs():
 def current_transactions():
     if request.method == "POST":
         if request.form.get('button', None) == 'clear':
-            return 'Clear'
+            logging.info('clear transactions')
+            session['current_transactions'] = []
+            flash('Transactions cleared', 'success')
+            return redirect(url_for('home'))
+
+        if request.form.get('button', None) == 'commit':
+            logging.info('commited transactions')
+            fieldnames = ["date","account","ammount","description","payee","category"]
+            transactions_filtered = loaders.filter_dicts(session['current_transactions'], fieldnames)
+            for transaction in transactions_filtered:
+                try:
+                    db_finance.db.processedtransactions.insert_one(transaction)
+                except:
+                    flash('One transaction could not be commited as it was a duplicate', 'danger')
+            flash('Transactions commited to database', 'success')
+            return redirect(url_for('current_transactions'))
+
         if request.form.get('button', None) == 'export':
+            logging.info('export transactions')
             fname ='output_'+ str(datetime.date.today()) +'.csv'
             with open(os.path.join(app.config['UPLOAD_FOLDER'], fname), 'w') as csvfile:
-                fieldnames = ['account', 'category', 'comment','date','ammount', 'payee', 'tag']
+                fieldnames = ["date","account","ammount","description","payee","category"]
                 writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
                 writer.writeheader()
-                for row in session['current_transactions']:
-                    writer.writerow(row)
+                writer.writerows(loaders.filter_dicts(session['current_transactions'], fieldnames))
 
-                flash('File saved successfully', 'success')
-
-            return redirect(url_for('uploaded_file',
-                                    filename=fname))
+            return redirect(url_for('uploaded_file', filename=fname))
+            flash('File saved successfully', 'success')
+            return redirect(url_for('current_transactions'))
 
 
     data = session.get('current_transactions',None)
@@ -126,8 +141,6 @@ def processtransactions(filename):
 
     return render_template('data_viz.html', data=automatic_classfied)
 
-#complete down to here
-
 @app.route('/users_input_required', methods=['GET', 'POST'])
 def users_input_required():
     form = forms.ClassficationForm()
@@ -135,10 +148,7 @@ def users_input_required():
         # check if the post request has the file part
         ct = session.get('current_transaction')
         ct.update({'category':form.ctype.data})
-        if session.get('classfied') != None or session['classfied']==[]:
-            session['classfied'].append(ct)
-        else:
-            session['classfied'] = [ct]
+        session['classfied'].append(ct)
 
     if len(session['users_input_required']) == 0:
         current_transaction = None
@@ -149,7 +159,8 @@ def users_input_required():
 
     if current_transaction:
         form.ctype.choices=[]
-        for cat in ['House + Groceries', 'Other + Other', 'Leisure + Entertainment', 'House + Groceries']:
+        # for cat in ['House + Groceries', 'Other + Other', 'Leisure + Entertainment', 'House + Groceries']:
+        for cat in current_transaction['suggestions']:
             form.ctype.choices.append((cat, cat))
 
         return render_template('user_classfier.html',
@@ -158,7 +169,7 @@ def users_input_required():
             awaing_classfication=session['users_input_required'],
             already_classfied=session.get('classfied'))
     else:
-        session['current_transactions'].append(session.get('classfied',[]))
+        session['current_transactions'].extend(session.get('classfied',[]))
         flash('Weldone! Human classfication Complete! You classfied {0} transactions manually'.format(len(session.get('classfied', []))), 'success')
         return redirect(url_for('current_transactions'))
 

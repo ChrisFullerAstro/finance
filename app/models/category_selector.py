@@ -152,7 +152,7 @@ def suggest_category(transaction, config, db):
             if x['category']  not in suggestions:
                 suggestions.append(x['category'])
 
-        transaction.update({'suggestions:':suggestions})
+        transaction.update({'suggestions':suggestions})
         return False, transaction
 
 def suggest_categoies_bulk(transactions, config, db):
