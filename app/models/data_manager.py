@@ -21,6 +21,10 @@ class DataManager(object):
         self.cs_config = self.client.config.cs_config
         self.processtransactions = self.client.finance.processtransactions
         self.input_data = None
+        self.automatic_classfied = []
+        self.users_input_required = []
+        self.classfied=[]
+        self.current_transaction = None
 
     def __connect_to_mongo(self):
         while True:
@@ -40,6 +44,12 @@ class DataManager(object):
 
     def __index_mongo(self):
         self.client.finance.master.create_index([('comment', ASCENDING)])
+
+    def get_new_transaction(self):
+        try:
+            self.current_transaction = self.users_input_required.pop(0)
+        except:
+            self.current_transaction = None
 
     def load_input_data(self,fname):
         l=loaders.Loaders()

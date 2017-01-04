@@ -1,19 +1,29 @@
 {% extends "layout.html" %}
 {% block content %}
   <div class="content">
-    <h1>Current Stored Transactions</h1>
+    <h1>Classfication Complete</h1>
+    <h4>All the transactions are classfied, verfy they are correcly classfied and input into master.</h4>
+    <form action="" method="post" name="config">
+        <div class="control-group">
+               <div class="controls">
+                   <input class="btn btn-primary" type="submit" value="Accept">
+               </div>
+           </div>
+    </form>
+    <br>
+    <br>
 <table class="table table-striped">
-        <thead class="thead-inverse thread-fixed-top">
+        <thead class="thead-inverse">
           <tr>
             <th>#</th>
             <th>Date</th>
-            <!-- <th>Account</th> -->
             <th>Ammount</th>
             <th>Comment</th>
             <th>Category</th>
           </tr>
         </thead>
         <tbody>
+          {% if data %}
           {% for obj in data %}
           <tr>
             <th scope="row">{{ loop.index0 + 1 }}</th>
@@ -24,18 +34,9 @@
             <th> {{ obj.category }} </th>
           </tr>
           {% endfor %}
+          {% else %}
+          <h6>No transactions found, please upload a file.</h6>
+          {% endif %}
         </tbody>
       </table>
-      <!-- <form method=post >
-        <p>
-           <h6> Automatic Classfication OK? </h6>
-           <input type=submit value="OK">
-      </form> -->
-      <form method=post >
-      <div class="control-group">
-             <div class="controls">
-                 <input class="btn btn-primary" type="submit" value="Submit">
-             </div>
-         </div>
-        </form>
 {% endblock %}
