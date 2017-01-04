@@ -1,13 +1,13 @@
-web:
-  build: .
-  command: python -u app/app.py
-  ports:
-    - "5000:5000"
-  volumes:
-    - .:/finance
-  links:
-    - db
-db:
-  image: mongo
-  ports:
-    - "27017:27017"
+version: '2'
+services:
+  web:
+    build: .
+    command: python app/app.py
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/finance
+    links:
+      - db
+  db:
+    image: mongo
