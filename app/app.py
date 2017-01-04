@@ -4,7 +4,7 @@ from flask import Flask, request, redirect, url_for, send_from_directory, render
 from werkzeug.utils import secure_filename
 # from flask.ext.pymongo import PyMongo
 from flask_pymongo import PyMongo
-from models import data_manager, category_selector, loaders
+from models import category_selector, loaders
 from forms import forms
 import logging
 import datetime
@@ -104,7 +104,7 @@ def upload_file():
         return redirect(url_for('processtransactions',filename=filename))
     else:
         filename = None
-    return render_template('upload2.html', form=form)
+    return render_template('upload.html', form=form)
 
 
 @app.route('/processtransactions/<filename>', methods=['GET', 'POST'])
