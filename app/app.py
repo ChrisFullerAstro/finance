@@ -27,6 +27,7 @@ def home():
 
 
     #get config data
+    session['categorys'] = category_selector.get_categorys(db_config.db.categories)
     session['config_data'] = category_selector.get_config(db_config.db.cs_config)
     return render_template('home.html', welcome_message=welcome_message)
 
@@ -169,7 +170,12 @@ def users_input_required():
     if current_transaction:
         form.ctype.choices=[]
         # for cat in ['House + Groceries', 'Other + Other', 'Leisure + Entertainment', 'House + Groceries']:
-        for cat in current_transaction['suggestions']:
+        # for cat in current_transaction['suggestions']:
+        #     form.ctype.choices.append((cat, cat))
+
+
+
+        for cat in session['categorys']:
             form.ctype.choices.append((cat, cat))
 
         return render_template('user_classfier.html',

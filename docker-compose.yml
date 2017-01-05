@@ -9,6 +9,7 @@ services:
       - .:/finance
     links:
       - db
+    restart: always
   db:
     image: mongo
     volumes:

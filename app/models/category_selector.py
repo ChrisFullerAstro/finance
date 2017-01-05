@@ -7,6 +7,36 @@ from pymongo import MongoClient, ASCENDING, DESCENDING
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s')
 
+DEFULT_CATS = [
+'House + Baby',
+'House + Giving',
+'House + Groceries',
+'House + Home Improvements',
+'House + Medical',
+'House + Monthlys',
+'House + Other',
+'House + Subscriptions - TV/Audio',
+'Income + Financial Gift',
+'Income + Other',
+'Income + Salarys',
+'Leisure + Amazon',
+'Leisure + Chris Personal',
+'Leisure + Clothing',
+'Leisure + Entertainment',
+'Leisure + Esther Personal',
+'Leisure + Gifts',
+'Leisure + Holidays',
+'Leisure + Leisure Other',
+'Other + Fees',
+'Other + Other',
+'Other + Work Expenses',
+'Transfer + Transfer',
+'Travel + Car Annuals',
+'Travel + Fuel',
+'Travel + Other',
+'Travel + Train Tickets'
+]
+
 def get_config(db):
     config_data = [x for x in db.find().sort('timestamp',DESCENDING).limit(1)]
 
@@ -18,7 +48,7 @@ def get_config(db):
         "timestamp": int(datetime.datetime.utcnow().strftime('%s'))
         }
 
-        category_selector.update_config(db, config_data)
+        update_config(db, config_data)
     else:
         config_data = config_data[0]
 
@@ -33,6 +63,22 @@ def update_config(db, data):
         db.insert_one(data)
     except Exception as e:
         logging.error(e)
+
+
+def get_categorys(db):
+    cats_dict = [x for x in db.find({})]
+    if cats_dict == []:
+        cats_lst = DEFULT_CATS
+        update_categorys(db, [{'sub_category':x} for x in cats_lst])
+        return sorted(cats_lst)
+    return [x["sub_category"] for x in cats_dict]
+
+def update_categorys(db, data):
+    for doc in data:
+        if db.find_one(doc)!=None:
+            pass
+        else:
+            db.insert_one(doc)
 
 def levenshtein(source, target):
     if len(source) < len(target):
@@ -96,6 +142,8 @@ def likelyhood_matches(x):
         return likelyhoods
 
 def suggest_category(transaction, config, db):
+    if db.find_one()==None:
+        return False
         logging.debug('Suggesting category for: {0}'.format(transaction['comment']))
 
         # Check if already indexed
