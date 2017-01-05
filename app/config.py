@@ -14,4 +14,4 @@ MONGO_HOST = "db"
 #Mongo Config
 MONGO2_PORT = 27017
 MONGO2_DBNAME = 'config'
-MONGO_HOST = "db" 
+MONGO2_HOST = "db" 
