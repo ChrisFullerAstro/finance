@@ -19,6 +19,14 @@ def filter_dicts(objs, keys):
         temp.append(fobj)
     return temp
 
+def filter_for_master(obj):
+    keys = ["date","account","ammount","description","payee","category", "comment"]
+    fobj={}
+    for k,v in obj.items():
+        if k in keys:
+            fobj[k] = v
+    return fobj
+
 def load_data(fname, dtype='barclays'):
     if dtype == 'barclays':
         logging.info('Using barclays loaders')

@@ -5,4 +5,20 @@
   <br>
   <h1>Welcome to the best finance app...</h1>
   <h2>...in the world.</h2>
+  {% if welcome_message=='new'%}
+      <div class="alert alert-success" role="alert">
+        <strong>
+          <p>
+          Welcome Traveller, dust of your shoes and make yourself at home.
+          </p>
+          <p>
+            Please look around.
+          </p>
+          <p>
+          Upload some data and work though the process, this will help you classfy your
+          transactions quickly and painlessly. Which you can then upload to your given finace package for analysis.
+          </p>
+        </strong>
+      </div>
+  {% endif %}
 {% endblock %}

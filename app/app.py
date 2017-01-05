@@ -19,9 +19,15 @@ db_config = PyMongo(app, config_prefix='MONGO2')
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/home', methods=['GET', 'POST'])
 def home():
+    welcome_message=None
+    #if new user display welcome message
+    if db_finance.db.master.find_one()==None:
+        welcome_message = 'new'
+
     #get config data
+    session['categorys'] = category_selector.get_categorys(db_config.db.categories)
     session['config_data'] = category_selector.get_config(db_config.db.cs_config)
-    return render_template('home.html')
+    return render_template('home.html', welcome_message=welcome_message)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -31,24 +37,18 @@ def login():
         return redirect(url_for('home'))
     return render_template('login.html', form=form, title='login')
 
-
 @app.route('/configuration_cs', methods=['GET', 'POST'])
 def configuration_cs():
     updated = ''
     form = forms.ConfigForm()
     if request.method == 'POST' and form.validate():
         category_selector.update_config(db_config.db.cs_config,{
-                    "THRESHOLD_ACCEPT_DISTANCE": float(form.TA_distance.data),
-                    "THRESHOLD_ACCEPT_LIKELYHOOD_EM":float(form.TA_likelyhood_em.data),
-                    "THRESHOLD_ACCEPT_LIKELYHOOD_LD":float(form.TA_likelyhood_ld.data)
-                        })
+                    "THRESHOLD_ACCEPT_DISTANCE": float(form.TA_distance.data)})
         session['config_data'] = category_selector.get_config(db_config.db.cs_config)
         flash('Configuration updated successfully', 'success')
 
     config_data = session.get('config_data', category_selector.get_config(db_config.db.cs_config))
     form.TA_distance.data = str(config_data['THRESHOLD_ACCEPT_DISTANCE'])
-    form.TA_likelyhood_em.data = str(config_data['THRESHOLD_ACCEPT_LIKELYHOOD_EM'])
-    form.TA_likelyhood_ld.data = str(config_data['THRESHOLD_ACCEPT_LIKELYHOOD_LD'])
     return render_template('config.html', form=form, title='Configuration')
 
 @app.route('/current_transactions', methods=['GET', 'POST'])
@@ -93,8 +93,6 @@ def current_transactions():
         flash('You have no current stored transactions', 'danger')
         return redirect(url_for('home'))
 
-
-
 @app.route('/upload_file', methods=['GET', 'POST'])
 def upload_file():
     form = forms.UploadForm()
@@ -106,40 +104,60 @@ def upload_file():
         filename = None
     return render_template('upload.html', form=form)
 
-
 @app.route('/processtransactions/<filename>', methods=['GET', 'POST'])
 def processtransactions(filename):
-    if request.method == 'POST':
-            if session['users_input_required'] != [] and session['automatic_classfied'] != []:
-                session['current_transactions'] = session['automatic_classfied']
-                flash('Automatically Classfied {0} transactions'.format(len(session['automatic_classfied'])),'success')
-                return redirect(url_for('users_input_required'))
-
-            elif session['users_input_required'] != [] and session['automatic_classfied'] == []:
-                flash('No transactions could be automatic classfied {0} need human classfication'.format(len(session['users_input_required'])), 'info')
-                return redirect(url_for('current_transactions'))
-
-            elif session['users_input_required'] == [] and session['automatic_classfied'] != []:
-                session['current_transactions'] = session['automatic_classfied']
-                flash('Automatically Classfied {0} transactions, No transactions need human classfication'.format(len(session['automatic_classfied'])), 'success')
-                return redirect(url_for('current_transactions'))
-
-            else:
-                flash('No transactions found make sure the file is not empty', 'danger')
-                return redirect(url_for('home'))
-
-    session['classfied']=[]
-    session['automatic_classfied'] = []
-    session['users_input_required'] = []
-
     session['input_data'] = loaders.load_data(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+    if session.get('input_data') == None or session.get('input_data') == []:
+        flash("No data found in the file, please check and try again", "danger")
+        return redirect(url_for('upload_file'))
+    return redirect(url_for('classfication'))
+
+@app.route('/classfication', methods=['GET', 'POST'])
+def classfication():
+    form = forms.ClassficationForm()
+    if request.method == 'POST':
+
+        #check if any cat was SelectField
+        if form.ctype.data:
+            ct = session.get('current_transaction')
+            ct.update({'category':form.ctype.data})
+            db_finance.db.master.insert_one(loaders.filter_for_master(ct))
+            if session.get('current_transactions'):
+                session['current_transactions'].append(ct)
+            else:
+                session['current_transactions'] = [ct]
+
+    #get config
     cs_config = session.get('config_data', category_selector.get_config(db_config.db.cs_config))
-    automatic_classfied, users_input_required = category_selector.suggest_categoies_bulk(session['input_data'], cs_config, db_finance.db.master)
 
-    session['automatic_classfied'] = automatic_classfied
-    session['users_input_required']= users_input_required
+    # Get top transaction from the input_data
+    current_transactions = session.get('input_data')
 
-    return render_template('data_viz.html', data=automatic_classfied)
+    #if there are no more transactions left redirect
+    if not current_transactions or current_transactions==[]:
+        flash('Finished', 'success')
+        return redirect(url_for('home'))
+
+    session['current_transaction'] = session['input_data'].pop(0)
+
+    #suggest_category
+    current_transaction = category_selector.suggest_category(session['current_transaction'], cs_config, db_finance.db.master)
+    form.ctype.choices=[]
+    if current_transaction['suggestions'][0]:
+        form.ctype.choices.append((current_transaction['suggestions'][0], current_transaction['suggestions'][0]))
+    else:
+        form.ctype.choices.append((None, 'Select Category'))
+    #set categories as form dropdown options
+    for cat in session.get('categorys', category_selector.get_categorys(db_config.db.categories)):
+        form.ctype.choices.append((cat, cat))
+
+    #render_template
+    return render_template('classfication.html',
+                            already_classfied=session.get('already_classfied'),
+                            current_transaction=current_transaction,
+                            form=form)
+
 
 @app.route('/users_input_required', methods=['GET', 'POST'])
 def users_input_required():
@@ -160,7 +178,12 @@ def users_input_required():
     if current_transaction:
         form.ctype.choices=[]
         # for cat in ['House + Groceries', 'Other + Other', 'Leisure + Entertainment', 'House + Groceries']:
-        for cat in current_transaction['suggestions']:
+        # for cat in current_transaction['suggestions']:
+        #     form.ctype.choices.append((cat, cat))
+
+
+
+        for cat in session['categorys']:
             form.ctype.choices.append((cat, cat))
 
         return render_template('user_classfier.html',

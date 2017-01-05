@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+{% block content %}
+  <div class="content">
+    <h1>Please Classify Transaction</h1>
+    <br>
+    <form method=post >
+    <table class="table table-striped">
+            <thead class="thead-inverse">
+              <tr>
+                <th>#</th>
+                <th>Date</th>
+                <th>Ammount</th>
+                <th>Comment</th>
+                <th>Category</th>
+                <th></th>
+                <th> </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if current_transaction %}
+              <tr>
+                <th> 1 </th>
+                <th> {{ current_transaction.date }} </th>
+                <th> {{ current_transaction.ammount }} </th>
+                <th> {{ current_transaction.comment }} </th>
+                <th class="dropdown">{{ form.ctype() }}</th>
+                <th>
+                  <div class="control-group">
+                         <div class="controls">
+                             <input class="btn btn-primary" type="submit" value="Submit">
+                         </div>
+                  </div>
+                </th>
+              </tr>
+              </tr>
+              </tr>
+              {% endif %}
+              {% if already_classfied %}
+              {% for obj in already_classfied %}
+              <tr>
+                <th scope="row">{{ loop.index0 + 2 }}</th>
+                <th> {{ obj.date }} </th>
+                <th> {{ obj.ammount }} </th>
+                <th> {{ obj.comment }} </th>
+                <th> {{ obj.category }} </th>
+              </tr>
+              {% endfor %}
+              {% endif %}
+            </tbody>
+          </table>
+          <br>
+          <br>
+      </form>
+{% endblock %}
