@@ -11,3 +11,5 @@ services:
       - db
   db:
     image: mongo
+    volumes:
+    - ./data/mongo/:/data/db
