@@ -8,7 +8,6 @@ logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s')
 
 def get_config(db):
-    #config_data = dm.cs_config.find_one()
     config_data = [x for x in db.find().sort('timestamp',DESCENDING).limit(1)]
 
     if config_data == []:
@@ -19,7 +18,7 @@ def get_config(db):
         "timestamp": int(datetime.datetime.utcnow().strftime('%s'))
         }
 
-        update_cs_config(db, config_data)
+        category_selector.update_config(db, config_data)
     else:
         config_data = config_data[0]
 
