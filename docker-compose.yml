@@ -9,7 +9,8 @@ services:
       - .:/finance
     links:
       - db
+    restart: always
   db:
     image: mongo
     volumes:
-    - ./data/mongo/:/data/db
+    - ./db/:/data/db
