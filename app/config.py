@@ -9,9 +9,9 @@ DEBUG = True
 #Mongo Finance Config
 MONGO_PORT = 27017
 MONGO_DBNAME = 'finance'
-MONGO_HOST = os.environ['DB_PORT_27017_TCP_ADDR']
+MONGO_HOST = "db" 
 
 #Mongo Config
 MONGO2_PORT = 27017
 MONGO2_DBNAME = 'config'
-MONGO_HOST = os.environ['DB_PORT_27017_TCP_ADDR']
+MONGO_HOST = "db" 
