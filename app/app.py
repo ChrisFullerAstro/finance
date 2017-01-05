@@ -177,4 +177,4 @@ def users_input_required():
 def uploaded_file(filename):
      return send_from_directory(app.config['UPLOAD_FOLDER'],filename)
 
-app.run()
+app.run(host='0.0.0.0')
