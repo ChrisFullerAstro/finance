@@ -19,9 +19,18 @@ db_config = PyMongo(app, config_prefix='MONGO2')
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/home', methods=['GET', 'POST'])
 def home():
+    welcome_message=None
+    #if new user display welcome message
+    if db_finance.db.master.find_one()==None:
+        welcome_message = 'new'
+
+
+
     #get config data
     session['config_data'] = category_selector.get_config(db_config.db.cs_config)
-    return render_template('home.html')
+    return render_template('home.html', welcome_message=welcome_message)
+
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
