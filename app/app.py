@@ -57,7 +57,7 @@ def current_transactions():
         if request.form.get('button', None) == 'clear':
             logging.info('clear transactions')
             session['current_transactions'] = []
-            flash('Transactions cleared', 'success')
+            flash('Transactions cleared from cache (still in database)', 'success')
             return redirect(url_for('home'))
 
         if request.form.get('button', None) == 'commit':
@@ -69,7 +69,7 @@ def current_transactions():
                     db_finance.db.processedtransactions.insert_one(transaction)
                 except:
                     flash('One transaction could not be commited as it was a duplicate', 'danger')
-            flash('Transactions commited to database', 'success')
+            flash('Transactions commited to database (master)', 'success')
             return redirect(url_for('current_transactions'))
 
         if request.form.get('button', None) == 'export':
@@ -138,7 +138,7 @@ def classfication():
     if not current_transactions or current_transactions==[]:
         flash('Finished', 'success')
         return redirect(url_for('home'))
-        
+
     session['current_transaction'] = session['input_data'].pop(0)
 
     #suggest_category
