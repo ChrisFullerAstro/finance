@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block content %}
   <div class="content">
-    <h1>Current Stored Transactions</h1>
+    <h1>{{ page_header }}</h1>
 <table class="table table-striped">
         <thead class="thead-inverse">
           <tr>
@@ -26,7 +26,7 @@
           {% endfor %}
         </tbody>
       </table>
-{% if data %}
+{% if data and 'Current' in page_header%}
 <form action="" method="post" name="config">
   <button type="submit" class="btn btn-primary btn-lg btn-block" name="button" value='export'>Export</button>
   <button type="submit" class="btn btn-primary btn-lg btn-block" name="button" value='commit'>Commit to Database</button>

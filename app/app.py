@@ -57,7 +57,7 @@ def current_transactions():
         if request.form.get('button', None) == 'clear':
             logging.info('clear transactions')
             session['current_transactions'] = []
-            flash('Transactions cleared', 'success')
+            flash('Transactions cleared from cache (still in database)', 'success')
             return redirect(url_for('home'))
 
         if request.form.get('button', None) == 'commit':
@@ -69,7 +69,7 @@ def current_transactions():
                     db_finance.db.processedtransactions.insert_one(transaction)
                 except:
                     flash('One transaction could not be commited as it was a duplicate', 'danger')
-            flash('Transactions commited to database', 'success')
+            flash('Transactions commited to database (master)', 'success')
             return redirect(url_for('current_transactions'))
 
         if request.form.get('button', None) == 'export':
@@ -88,9 +88,18 @@ def current_transactions():
 
     data = session.get('current_transactions',None)
     if data:
-        return render_template('render_data.html', data=data)
+        return render_template('render_data.html', data=data, page_header='Current Transactions')
     else:
         flash('You have no current stored transactions', 'danger')
+        return redirect(url_for('home'))
+
+@app.route('/stored_transactions', methods=['GET'])
+def stored_transactions():
+    data = [x for x in db_finance.db.master.find({})]
+    if data:
+        return render_template('render_data.html', data=data, page_header='My Transactions')
+    else:
+        flash('You have no current stored transactions in master', 'danger')
         return redirect(url_for('home'))
 
 @app.route('/upload_file', methods=['GET', 'POST'])
@@ -146,6 +155,7 @@ def classfication():
     form.ctype.choices=[]
     if current_transaction['suggestions'][0]:
         form.ctype.choices.append((current_transaction['suggestions'][0], current_transaction['suggestions'][0]))
+        form.ctype.default = current_transaction['suggestions'][0]
     else:
         form.ctype.choices.append((None, 'Select Category'))
     #set categories as form dropdown options
@@ -154,7 +164,7 @@ def classfication():
 
     #render_template
     return render_template('classfication.html',
-                            already_classfied=session.get('already_classfied'),
+                            already_classfied=session.get('current_transactions'),
                             current_transaction=current_transaction,
                             form=form)
 
