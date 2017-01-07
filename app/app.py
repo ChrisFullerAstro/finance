@@ -88,9 +88,18 @@ def current_transactions():
 
     data = session.get('current_transactions',None)
     if data:
-        return render_template('render_data.html', data=data)
+        return render_template('render_data.html', data=data, page_header='Current Transactions')
     else:
         flash('You have no current stored transactions', 'danger')
+        return redirect(url_for('home'))
+
+@app.route('/stored_transactions', methods=['GET'])
+def stored_transactions():
+    data = [x for x in db_finance.db.master.find({})]
+    if data:
+        return render_template('render_data.html', data=data, page_header='My Transactions')
+    else:
+        flash('You have no current stored transactions in master', 'danger')
         return redirect(url_for('home'))
 
 @app.route('/upload_file', methods=['GET', 'POST'])
