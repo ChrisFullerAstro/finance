@@ -138,7 +138,7 @@ def classfication():
     if not current_transactions or current_transactions==[]:
         flash('Finished', 'success')
         return redirect(url_for('home'))
-
+        
     session['current_transaction'] = session['input_data'].pop(0)
 
     #suggest_category
@@ -146,6 +146,7 @@ def classfication():
     form.ctype.choices=[]
     if current_transaction['suggestions'][0]:
         form.ctype.choices.append((current_transaction['suggestions'][0], current_transaction['suggestions'][0]))
+        form.ctype.default = current_transaction['suggestions'][0]
     else:
         form.ctype.choices.append((None, 'Select Category'))
     #set categories as form dropdown options
@@ -154,7 +155,7 @@ def classfication():
 
     #render_template
     return render_template('classfication.html',
-                            already_classfied=session.get('already_classfied'),
+                            already_classfied=session.get('current_transactions'),
                             current_transaction=current_transaction,
                             form=form)
 
