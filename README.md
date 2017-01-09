@@ -23,3 +23,7 @@ docker-compose up --build
 * Export data from current transactions and commit to the master database
 
 This file can now be loaded into your finance application of choice for analysis.
+
+## Demo
+
+If you want to test this software, use test_data/small_barclays.csv
