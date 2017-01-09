@@ -19,7 +19,7 @@ docker-compose up --build
 * Export data from your online banking (Currently Only Barclays Supported)
 * Navigate to 'Uploads'
 * Upload a file
-* Classfy each transaction
+* Classify each transaction
 * Export data from current transactions and commit to the master database
 
 This file can now be loaded into your finance application of choice for analysis.
