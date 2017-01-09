@@ -1,37 +1,29 @@
-## Welcome to GitHub Pages
+# Finance
 
-You can use the [editor on GitHub](https://github.com/ProjectRepos/finance/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
+Hello, welcome to this application that is designed to help you label your personal
+finances.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+## Installation
 
-### Markdown
-
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
-
-```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
+* Install Docker [here](https://docs.docker.com/engine/getstarted/step_one/)
+* Clone this repo
+* Install and run using :
+```bash
+cd finance
+docker-compose up --build
 ```
+* Navigate to [localhost:5000](http://localhost:5000)
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+## Operation
 
-### Jekyll Themes
+* Export data from your online banking (Currently Only Barclays Supported)
+* Navigate to 'Uploads'
+* Upload a file
+* Classify each transaction
+* Export data from current transactions and commit to the master database
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/ProjectRepos/finance/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+This file can now be loaded into your finance application of choice for analysis.
 
-### Support or Contact
+## Demo
 
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+If you want to test this software, use test_data/small_barclays.csv
