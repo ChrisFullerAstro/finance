@@ -43,7 +43,7 @@ def get_config(db):
 
     if config_data == []:
         config_data = {
-        "SIMILARITY_THRESHOLD" : 0.1,
+        "SIMILARITY_THRESHOLD" : 0.2,
         "timestamp": int(datetime.datetime.utcnow().strftime('%s'))
         }
 
