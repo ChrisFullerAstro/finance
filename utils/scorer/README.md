@@ -27,7 +27,6 @@ The above is plotted now with each line corrosponding to the number of samples w
 
 ## Futher Work
 
-\
 * It would be interesting to see the fraction that were automatically classfied vs not.
 
 * Also plot a random classfication on the above to see how much better we do.
