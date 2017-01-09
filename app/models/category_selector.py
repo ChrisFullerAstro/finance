@@ -43,7 +43,7 @@ def get_config(db):
 
     if config_data == []:
         config_data = {
-        "THRESHOLD_ACCEPT_DISTANCE" : 10.0,
+        "SIMILARITY_THRESHOLD" : 0.1,
         "timestamp": int(datetime.datetime.utcnow().strftime('%s'))
         }
 
@@ -85,14 +85,14 @@ def distance_to_all_stored_comments(target,db):
             for x in db.find({})]
 
         res=[]
-        temp=[]
+        simalarties=[]
         length = len(target)
         for obj in sorted(distances, key=lambda x: x['distance']):
             if obj['category'] not in res:
                 #temp.append(obj)
-                temp.append({'category':obj['category'], 'distance':obj['distance']/float(length)})
+                simalarties.append(obj['distance']/float(length))
                 res.append(obj['category'])
-        return res
+        return res, simalarties
 
 def suggest_category(transaction, config, db):
     logging.debug('Suggesting category for: {0}'.format(transaction['comment']))
@@ -100,10 +100,14 @@ def suggest_category(transaction, config, db):
     if db.find_one()==None:
         logging.info('No Transactions found in processtransactions skipping suggest_category')
         transaction.update({'suggestions':[None]})
-        return transaction
+        return transaction, False
 
     # Compute levenshtein distance and make array of suggestions
-    categories = distance_to_all_stored_comments(transaction['comment'], db)
+    categories, simalarties = distance_to_all_stored_comments(transaction['comment'], db)
 
     transaction.update({'suggestions':categories})
-    return transaction
+
+    if simalarties[0] <= config['SIMILARITY_THRESHOLD']:
+        return transaction, True
+
+    return transaction, False

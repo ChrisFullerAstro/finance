@@ -43,12 +43,12 @@ def configuration_cs():
     form = forms.ConfigForm()
     if request.method == 'POST' and form.validate():
         category_selector.update_config(db_config.db.cs_config,{
-                    "THRESHOLD_ACCEPT_DISTANCE": float(form.TA_distance.data)})
+                    "SIMILARITY_THRESHOLD": float(form.SIMILARITY_THRESHOLD.data)})
         session['config_data'] = category_selector.get_config(db_config.db.cs_config)
         flash('Configuration updated successfully', 'success')
 
     config_data = session.get('config_data', category_selector.get_config(db_config.db.cs_config))
-    form.TA_distance.data = str(config_data['THRESHOLD_ACCEPT_DISTANCE'])
+    form.SIMILARITY_THRESHOLD.data = str(config_data['SIMILARITY_THRESHOLD'])
     return render_template('config.html', form=form, title='Configuration')
 
 @app.route('/current_transactions', methods=['GET', 'POST'])
@@ -151,22 +151,38 @@ def classfication():
     session['current_transaction'] = session['input_data'].pop(0)
 
     #suggest_category
-    current_transaction = category_selector.suggest_category(session['current_transaction'], cs_config, db_finance.db.master)
-    form.ctype.choices=[]
-    if current_transaction['suggestions'][0]:
-        form.ctype.choices.append((current_transaction['suggestions'][0], current_transaction['suggestions'][0]))
-        form.ctype.default = current_transaction['suggestions'][0]
-    else:
-        form.ctype.choices.append((None, 'Select Category'))
-    #set categories as form dropdown options
-    for cat in session.get('categorys', category_selector.get_categorys(db_config.db.categories)):
-        form.ctype.choices.append((cat, cat))
+    current_transaction, automatic = category_selector.suggest_category(session['current_transaction'], cs_config, db_finance.db.master)
 
-    #render_template
-    return render_template('classfication.html',
-                            already_classfied=session.get('current_transactions'),
-                            current_transaction=current_transaction,
-                            form=form)
+    #test if suggestions in above automatic limit
+    if automatic:
+        flash('transaction classfied automatically', 'info')
+        ct = session.get('current_transaction')
+        ct.update({'category':current_transaction['suggestions'][0]})
+        db_finance.db.master.insert_one(loaders.filter_for_master(ct))
+        if session.get('current_transactions'):
+            session['current_transactions'].append(ct)
+        else:
+            session['current_transactions'] = [ct]
+
+        return redirect(url_for('classfication'))
+
+    #requires user input
+    else:
+        form.ctype.choices=[]
+        if current_transaction['suggestions'][0]:
+            form.ctype.choices.append((current_transaction['suggestions'][0], current_transaction['suggestions'][0]))
+            form.ctype.default = current_transaction['suggestions'][0]
+        else:
+            form.ctype.choices.append((None, 'Select Category'))
+        #set categories as form dropdown options
+        for cat in session.get('categorys', category_selector.get_categorys(db_config.db.categories)):
+            form.ctype.choices.append((cat, cat))
+
+        #render_template
+        return render_template('classfication.html',
+                                already_classfied=session.get('current_transactions'),
+                                current_transaction=current_transaction,
+                                form=form)
 
 
 @app.route('/users_input_required', methods=['GET', 'POST'])
