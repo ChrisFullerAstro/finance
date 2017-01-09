@@ -78,11 +78,12 @@ def update_categorys(db, data):
         else:
             db.insert_one(doc)
 
-def distance_to_all_stored_comments(target,db):
+def distance_to_all_stored_comments(target,data):
+
         distances = [{
             'distance':editdistance.eval(target,x['comment']),
             'category':x['category']}
-            for x in db.find({})]
+            for x in data]
 
         res=[]
         simalarties=[]
@@ -94,16 +95,19 @@ def distance_to_all_stored_comments(target,db):
                 res.append(obj['category'])
         return res, simalarties
 
-def suggest_category(transaction, config, db):
+def suggest_category(transaction, config, db=None, data=None):
     logging.debug('Suggesting category for: {0}'.format(transaction['comment']))
 
-    if db.find_one()==None:
+    if data==None:
+        data=[x for x in db.find({})]
+
+    if db!=None and db.find_one()==None:
         logging.info('No Transactions found in processtransactions skipping suggest_category')
         transaction.update({'suggestions':[None]})
         return transaction, False
 
     # Compute levenshtein distance and make array of suggestions
-    categories, simalarties = distance_to_all_stored_comments(transaction['comment'], db)
+    categories, simalarties = distance_to_all_stored_comments(transaction['comment'], data)
 
     transaction.update({'suggestions':categories})
 
