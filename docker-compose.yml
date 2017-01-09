@@ -7,10 +7,10 @@ services:
       - "5000:5000"
     volumes:
       - .:/finance
-    links:
+    depends_on:
       - db
     restart: always
   db:
     image: mongo
-    volumes:
-    - ./db/:/data/db
+    # volumes:
+    # - ./db/:/data/db

@@ -43,7 +43,7 @@ def get_config(db):
 
     if config_data == []:
         config_data = {
-        "SIMILARTIY_THREAHOLD" : 0.1,
+        "SIMILARITY_THRESHOLD" : 0.1,
         "timestamp": int(datetime.datetime.utcnow().strftime('%s'))
         }
 
@@ -107,7 +107,7 @@ def suggest_category(transaction, config, db):
 
     transaction.update({'suggestions':categories})
 
-    if simalarties[0] <= config['SIMILARTIY_THREAHOLD']:
+    if simalarties[0] <= config['SIMILARITY_THRESHOLD']:
         return transaction, True
-        
+
     return transaction, False

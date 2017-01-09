@@ -43,12 +43,12 @@ def configuration_cs():
     form = forms.ConfigForm()
     if request.method == 'POST' and form.validate():
         category_selector.update_config(db_config.db.cs_config,{
-                    "SIMILARTIY_THREAHOLD": float(form.TA_distance.data)})
+                    "SIMILARITY_THRESHOLD": float(form.SIMILARITY_THRESHOLD.data)})
         session['config_data'] = category_selector.get_config(db_config.db.cs_config)
         flash('Configuration updated successfully', 'success')
 
     config_data = session.get('config_data', category_selector.get_config(db_config.db.cs_config))
-    form.TA_distance.data = str(config_data['SIMILARTIY_THREAHOLD'])
+    form.SIMILARITY_THRESHOLD.data = str(config_data['SIMILARITY_THRESHOLD'])
     return render_template('config.html', form=form, title='Configuration')
 
 @app.route('/current_transactions', methods=['GET', 'POST'])
@@ -155,6 +155,7 @@ def classfication():
 
     #test if suggestions in above automatic limit
     if automatic:
+        flash('transaction classfied automatically', 'info')
         ct = session.get('current_transaction')
         ct.update({'category':current_transaction['suggestions'][0]})
         db_finance.db.master.insert_one(loaders.filter_for_master(ct))
