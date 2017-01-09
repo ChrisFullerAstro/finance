@@ -8,7 +8,7 @@ class LoginForm(FlaskForm):
     remember_me = BooleanField('remember_me', default=False)
 
 class ConfigForm(FlaskForm):
-    TA_distance = StringField('Acceptance Threshold Levenshtein Distance', validators=[DataRequired()], default='0.7')
+    SIMILARITY_THRESHOLD = StringField('Similary Threshold for Automatic Acceptance', validators=[DataRequired()], default='0.7')
 
 class UploadForm(FlaskForm):
     file_name = FileField('Data File')
