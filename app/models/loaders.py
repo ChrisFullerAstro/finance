@@ -20,7 +20,7 @@ def filter_dicts(objs, keys):
     return temp
 
 def filter_for_master(obj):
-    keys = ["date","account","ammount","description","payee","category", "comment"]
+    keys = ["date","account","ammount","payee","category","comment"]
     fobj={}
     for k,v in obj.items():
         if k in keys:

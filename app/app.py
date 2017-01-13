@@ -62,7 +62,7 @@ def current_transactions():
 
         if request.form.get('button', None) == 'commit':
             logging.info('commited transactions')
-            fieldnames = ["date","account","ammount","description","payee","category"]
+            fieldnames = ["date","account","ammount","comment","payee","category"]
             transactions_filtered = loaders.filter_dicts(session['current_transactions'], fieldnames)
             for transaction in transactions_filtered:
                 try:
@@ -76,7 +76,7 @@ def current_transactions():
             logging.info('export transactions')
             fname ='output_'+ str(datetime.date.today()) +'.csv'
             with open(os.path.join(app.config['UPLOAD_FOLDER'], fname), 'w') as csvfile:
-                fieldnames = ["date","account","ammount","description","payee","category"]
+                fieldnames = ["date","account","ammount","comment","payee","category"]
                 writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
                 writer.writeheader()
                 writer.writerows(loaders.filter_dicts(session['current_transactions'], fieldnames))
@@ -108,13 +108,31 @@ def upload_file():
     if form.validate_on_submit():
         filename = secure_filename(form.file_name.data.filename)
         form.file_name.data.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        return redirect(url_for('processtransactions',filename=filename))
+        return redirect(url_for('processtransactions',filename=filename, dtype=form.dtype.data))
     else:
         filename = None
     return render_template('upload.html', form=form)
 
-@app.route('/processtransactions/<filename>', methods=['GET', 'POST'])
-def processtransactions(filename):
+@app.route('/processtransactions/<filename>/<dtype>', methods=['GET', 'POST'])
+def processtransactions(filename, dtype):
+
+    if dtype=='config':
+        data = [x for x in csv.DictReader(open(os.path.join(app.config['UPLOAD_FOLDER'], filename), errors='replace'))]
+
+        succeed=0
+        failed=0
+        for row in data:
+            if db_finance.db.master.find_one(row)==None:
+                db_finance.db.master.insert_one(row)
+                succeed+=1
+            else:
+                failed+=1
+        flash('Uploaded {0} transactions to master'.format(succeed), 'success')
+        if failed!=0:
+            flash('Fail to uploaded {0} transactions to master as they may be duplicates'.format(failed), 'danger')
+        return redirect(url_for('upload_file'))
+        return redirect(url_for('stored_transactions'))
+
     session['input_data'] = loaders.load_data(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
     if session.get('input_data') == None or session.get('input_data') == []:

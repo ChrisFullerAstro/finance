@@ -12,7 +12,7 @@ class ConfigForm(FlaskForm):
 
 class UploadForm(FlaskForm):
     file_name = FileField('Data File')
-    dtype =  SelectField('Data Type', choices=[('barclays','Barclays'), ('barclaycard','Barclaycard')])
+    dtype =  SelectField('Data Type', choices=[('barclays','Barclays'), ('barclaycard','Barclaycard'), ('config','Historical Data')])
 
 class ClassficationForm(FlaskForm):
     ctype =  SelectField('Category Type', choices=[])
