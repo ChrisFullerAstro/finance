@@ -149,6 +149,8 @@ def classfication():
         if form.ctype.data:
             ct = session.get('current_transaction')
             ct.update({'category':form.ctype.data})
+            if db_finance.db.master.find_one(ct)==None:
+                db_finance.db.master.insert_one(ct)
             db_finance.db.master.insert_one(loaders.filter_for_master(ct))
             if session.get('current_transactions'):
                 session['current_transactions'].append(ct)
@@ -176,7 +178,12 @@ def classfication():
         flash('transaction classfied automatically', 'info')
         ct = session.get('current_transaction')
         ct.update({'category':current_transaction['suggestions'][0]})
-        db_finance.db.master.insert_one(loaders.filter_for_master(ct))
+
+        obj = loaders.filter_for_master(ct)
+
+        if db_finance.db.master.find_one(obj)==None:
+            db_finance.db.master.insert_one(obj)
+
         if session.get('current_transactions'):
             session['current_transactions'].append(ct)
         else:
