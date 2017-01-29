@@ -38,15 +38,22 @@ def load_data(fname, dtype='barclays'):
 
 def load_barclays(fname):
     logging.info("Loading {0}".format(fname))
-    with open(fname,errors="replace") as f:
+    with open(fname,'rb') as f:
         transactions=[]
         for line in f:
+            line = line.decode("ascii", "ignore")
             if line.startswith('Number'): continue
             line = line.lstrip(' ,').rstrip().split(',')
 
             payee = line[4].split()[0]
             if payee.strip(' ')=='':
                 payee = line[4]
+
+
+            #test if any are empty
+            if [x for x in line if x.replace(' ', '')=='']:
+                raise Exception("No Data in ".format(line))
+
 
             transactions.append({
                 'date':line[0],

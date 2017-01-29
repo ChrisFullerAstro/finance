@@ -98,16 +98,20 @@ def suggest_category(transaction, config, db):
     logging.debug('Suggesting category for: {0}'.format(transaction['comment']))
 
     if db.find_one()==None:
-        logging.info('No Transactions found in processtransactions skipping suggest_category')
+        logging.info('No Transactions found in master skipping suggest_category')
         transaction.update({'suggestions':[None]})
         return transaction, False
 
+    logging.info('Computing levenshtein distance to all currenly held transactions')
     # Compute levenshtein distance and make array of suggestions
     categories, simalarties = distance_to_all_stored_comments(transaction['comment'], db)
 
+    logging.info('Len(suggestions)={0}'.format(len(categories)))
     transaction.update({'suggestions':categories})
 
     if simalarties[0] <= config['SIMILARITY_THRESHOLD']:
+        logging.info('Transaction less than SIMILARITY_THRESHOLD return True')
         return transaction, True
 
+    logging.info('Transaction greater than SIMILARITY_THRESHOLD return False')
     return transaction, False
