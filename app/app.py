@@ -171,7 +171,7 @@ def classfication():
     logging.info('current_transaction after classfication:{0}'.format(json.dumps(current_transaction)))
 
     #test if suggestions in above automatic limit
-    if automatic:
+    if automatic and False:
         logging.info('automatic classfication found')
         flash('transaction classfied automatically', 'info')
         ct = session.get('current_transaction')
