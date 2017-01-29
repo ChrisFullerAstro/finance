@@ -57,14 +57,14 @@ def current_transactions():
     if request.method == "POST":
         if request.form.get('button', None) == 'clear':
             logging.info('clear transactions')
-            session['current_transactions'] = []
-            flash('Transactions cleared from cache (still in database)', 'success')
+            db_finance.db.current_transactions.delete_many({})
+            flash('Transactions cleared from cache', 'success')
             return redirect(url_for('home'))
 
         if request.form.get('button', None) == 'commit':
             logging.info('commited transactions')
             fieldnames = ["date","account","ammount","description","payee","category"]
-            transactions_filtered = loaders.filter_dicts(session['current_transactions'], fieldnames)
+            transactions_filtered = loaders.filter_dicts([x for x in db_finance.db.current_transactions.find({})], fieldnames)
             for transaction in transactions_filtered:
                 try:
                     db_finance.db.processedtransactions.insert_one(transaction)
@@ -80,7 +80,7 @@ def current_transactions():
                 fieldnames = ["date","account","ammount","description","payee","category"]
                 writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
                 writer.writeheader()
-                writer.writerows(loaders.filter_dicts(session['current_transactions'], fieldnames))
+                writer.writerows(loaders.filter_dicts([x for x in db_finance.db.current_transactions.find({})], fieldnames))
 
             return redirect(url_for('uploaded_file', filename=fname))
             flash('File saved successfully', 'success')
@@ -138,17 +138,8 @@ def classfication():
             ct = session.get('current_transaction')
             ct.update({'category':form.ctype.data})
             db_finance.db.master.insert_one(loaders.filter_for_master(ct))
+            db_finance.db.current_transactions.insert_one(ct)
 
-            if session.get('current_transactions'):
-                before = len(session.get('current_transactions'))
-                logging.info('found current transactions so appending current transaction, current_transactions before {0}'.format(len(session.get('current_transactions'))))
-                session['current_transactions'].append(ct)
-                logging.info('found current transactions so appending current transaction, current_transactions now {0}'.format(len(session.get('current_transactions'))))
-                if before == len(session.get('current_transactions')):
-                    raise Exception("No transaction added to current_transactions")
-            else:
-                logging.info('No current transactions found so creating current transactions in session')
-                session['current_transactions'] = [ct]
 
     #get config
     logging.info('Getting config')
@@ -184,12 +175,7 @@ def classfication():
         db_finance.db.master.insert_one(fct)
 
         logging.info('current_transaction after auto ready for injection into current_transactions:{0}'.format(json.dumps(ct)))
-        if session.get('current_transactions'):
-            logging.info('Adding to current_transactions len(session["current_transactions"])')
-            session['current_transactions'].append(ct)
-        else:
-            logging.info('Creating current_transactions')
-            session['current_transactions'] = [ct]
+        db_finance.db.current_transactions.insert_one(ct)
 
         logging.info('redirect after automatic classfication')
         return redirect(url_for('classfication'))
@@ -216,43 +202,6 @@ def classfication():
                                 current_transaction=current_transaction,
                                 form=form)
 
-
-@app.route('/users_input_required', methods=['GET', 'POST'])
-def users_input_required():
-    form = forms.ClassficationForm()
-    if request.method == 'POST':
-        # check if the post request has the file part
-        ct = session.get('current_transaction')
-        ct.update({'category':form.ctype.data})
-        session['classfied'].append(ct)
-
-    if len(session['users_input_required']) == 0:
-        current_transaction = None
-    else:
-        current_transaction = session['users_input_required'].pop(0)
-
-    session['current_transaction'] = current_transaction
-
-    if current_transaction:
-        form.ctype.choices=[]
-        # for cat in ['House + Groceries', 'Other + Other', 'Leisure + Entertainment', 'House + Groceries']:
-        # for cat in current_transaction['suggestions']:
-        #     form.ctype.choices.append((cat, cat))
-
-
-
-        for cat in session['categorys']:
-            form.ctype.choices.append((cat, cat))
-
-        return render_template('user_classfier.html',
-            form=form,
-            t=current_transaction,
-            awaing_classfication=session['users_input_required'],
-            already_classfied=session.get('classfied'))
-    else:
-        session['current_transactions'].extend(session.get('classfied',[]))
-        flash('Weldone! Human classfication Complete! You classfied {0} transactions manually'.format(len(session.get('classfied', []))), 'success')
-        return redirect(url_for('current_transactions'))
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
