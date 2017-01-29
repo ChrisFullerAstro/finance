@@ -126,11 +126,8 @@ def processtransactions(filename):
 @app.route('/classfication', methods=['GET', 'POST'])
 def classfication():
 
-    logging.error('  ')
-    logging.error('  ')
-    logging.error('  ')
-    logging.error('  ')
-    logging.error('  ')
+    logging.info(' *** New Call *** ')
+
     form = forms.ClassficationForm()
     if request.method == 'POST':
         logging.info("Post method found")
