@@ -140,8 +140,12 @@ def classfication():
             db_finance.db.master.insert_one(loaders.filter_for_master(ct))
 
             if session.get('current_transactions'):
-                logging.info('found current transactions so appending current transaction, current_transactions now {0}'.format(len(session.get('current_transactions'))))
+                before = len(session.get('current_transactions'))
+                logging.info('found current transactions so appending current transaction, current_transactions before {0}'.format(len(session.get('current_transactions'))))
                 session['current_transactions'].append(ct)
+                logging.info('found current transactions so appending current transaction, current_transactions now {0}'.format(len(session.get('current_transactions'))))
+                if before == len(session.get('current_transactions')):
+                    raise Exception("No transaction added to current_transactions")
             else:
                 logging.info('No current transactions found so creating current transactions in session')
                 session['current_transactions'] = [ct]
