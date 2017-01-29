@@ -87,8 +87,8 @@ def current_transactions():
             return redirect(url_for('current_transactions'))
 
 
-    data = session.get('current_transactions',None)
-    if data:
+    data = [x for x in db_finance.db.current_transactions.find({})]
+    if data!=[] or data != None:
         return render_template('render_data.html', data=data, page_header='Current Transactions')
     else:
         flash('You have no current stored transactions', 'danger')
