@@ -197,7 +197,7 @@ def classfication():
         logging.info('Addging cats to form and rendering classfication.html to user')
         #render_template
         return render_template('classfication.html',
-                                already_classfied=session.get('current_transactions'),
+                                already_classfied=[x for x in db_finance.db.current_transactions.find({})],
                                 current_transaction=current_transaction,
                                 form=form)
 
