@@ -87,7 +87,7 @@ def current_transactions():
             return redirect(url_for('current_transactions'))
 
 
-    if ldb_finance.db.current_transactions.find_one({})
+    if ldb_finance.db.current_transactions.find_one({}):
         return render_template('render_data.html', data=[x for x in db_finance.db.current_transactions.find({})], page_header='Current Transactions')
     else:
         flash('You have no current stored transactions', 'danger')
