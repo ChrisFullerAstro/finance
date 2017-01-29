@@ -157,12 +157,12 @@ def classfication():
         return redirect(url_for('home'))
 
     session['current_transaction'] = session['input_data'].pop(0)
-    logging.info('current_transaction:{0}'.format(json.dumps(session['current_transaction'] ))
+    logging.info('current_transaction:{0}'.format(json.dumps(session['current_transaction'] )))
 
     #suggest_category
     current_transaction, automatic = category_selector.suggest_category(session['current_transaction'], cs_config, db_finance.db.master)
 
-    logging.info('current_transaction after classfication:{0}'.format(json.dumps(current_transaction))
+    logging.info('current_transaction after classfication:{0}'.format(json.dumps(current_transaction)))
 
     #test if suggestions in above automatic limit
     if automatic:
@@ -173,10 +173,10 @@ def classfication():
         logging.info('filter_for_master')
         fct = loaders.filter_for_master(ct)
 
-        logging.info('current_transaction after auto ready for injection into master:{0}'.format(json.dumps(fct))
+        logging.info('current_transaction after auto ready for injection into master:{0}'.format(json.dumps(fct)))
         db_finance.db.master.insert_one(fct)
 
-        logging.info('current_transaction after auto ready for injection into current_transactions:{0}'.format(json.dumps(ct))
+        logging.info('current_transaction after auto ready for injection into current_transactions:{0}'.format(json.dumps(ct)))
         if session.get('current_transactions'):
             logging.info('Adding to current_transactions len(session["current_transactions"])')
             session['current_transactions'].append(ct)
