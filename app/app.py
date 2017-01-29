@@ -192,14 +192,17 @@ def classfication():
         logging.info('requires user input')
         form.ctype.choices=[]
         if current_transaction['suggestions'][0]:
+            logging.info('Suggestions found adding to form')
             form.ctype.choices.append((current_transaction['suggestions'][0], current_transaction['suggestions'][0]))
             form.ctype.default = current_transaction['suggestions'][0]
         else:
+            logging.info('No suggestions found so not offering any to user')
             form.ctype.choices.append((None, 'Select Category'))
         #set categories as form dropdown options
         for cat in session.get('categorys', category_selector.get_categorys(db_config.db.categories)):
             form.ctype.choices.append((cat, cat))
 
+        logging.info('Addging cats to form and rendering classfication.html to user')
         #render_template
         return render_template('classfication.html',
                                 already_classfied=session.get('current_transactions'),
