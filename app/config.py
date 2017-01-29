@@ -3,7 +3,7 @@ import os
 UPLOAD_FOLDER = '/home/'
 WTF_CSRF_ENABLED = True
 SECRET_KEY = 'you-will-never-guess'
-DEBUG = True
+DEBUG = False
 
 
 #Mongo Finance Config
