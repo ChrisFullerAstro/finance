@@ -2,7 +2,7 @@ import os
 # Flask Config
 UPLOAD_FOLDER = '/home/'
 WTF_CSRF_ENABLED = True
-SECRET_KEY = 'you-will-never-guess'
+SECRET_KEY = "84c203a1-ce62-43ea-9a44-3188cd022d1b"
 DEBUG = True
 
 
