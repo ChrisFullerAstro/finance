@@ -26,6 +26,7 @@ def home():
         welcome_message = 'new'
 
     #get config data
+    logging.info('refreshing categorys and config')
     session['categorys'] = category_selector.get_categorys(db_config.db.categories)
     session['config_data'] = category_selector.get_config(db_config.db.cs_config)
     return render_template('home.html', welcome_message=welcome_message)
