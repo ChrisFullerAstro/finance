@@ -209,7 +209,7 @@ def classfication():
     logging.info('Rendering classfication.html to user')
     #render_template
     return render_template('classfication.html',
-                            already_classfied=[x for x in db_finance.db.current_transactions.find({})],
+                            already_classfied=[x for x in db_finance.db.current_transactions.find({})][::-1],
                             current_transaction=current_transaction,
                             form=form)
 
