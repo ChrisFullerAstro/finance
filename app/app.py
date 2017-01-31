@@ -189,7 +189,7 @@ def classfication():
     if not current_transactions or current_transactions==[]:
         logging.info('no current_transactions found finishing classfication')
         flash('Finished', 'success')
-        return redirect(url_for('home'))
+        return redirect(url_for('current_transactions'))
 
     session['current_transaction'] = session['input_data'].pop(0)
     logging.info('current_transaction:{0}'.format(json.dumps(session['current_transaction'] )))
