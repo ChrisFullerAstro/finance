@@ -41,7 +41,8 @@ def load_data(fname, dtype='barclays'):
 
 def load_master(fname):
     with open(fname,errors="ignore") as f:
-    return [x for x in csv.DictReader(f)]
+        data =  [x for x in csv.DictReader(f)]
+    return data
 
 
 def load_barclays(fname):
