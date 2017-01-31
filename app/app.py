@@ -93,14 +93,43 @@ def current_transactions():
         flash('You have no current stored transactions', 'danger')
         return redirect(url_for('home'))
 
-@app.route('/stored_transactions', methods=['GET'])
+@app.route('/stored_transactions', methods=['GET', 'POST'])
 def stored_transactions():
-    data = [x for x in db_finance.db.master.find({})]
-    if data:
-        return render_template('render_data.html', data=data, page_header='My Transactions')
+    if request.method == "POST":
+        if request.form.get('button', None) == 'clear':
+            logging.info('clear transactions')
+            db_finance.db.master.delete_many({})
+            flash('Transactions cleared from cache', 'success')
+            return redirect(url_for('home'))
+
+        if request.form.get('button', None) == 'export':
+            logging.info('export transactions')
+            fname ='output_'+ str(datetime.date.today()) +'.csv'
+            with open(os.path.join(app.config['UPLOAD_FOLDER'], fname), 'w') as csvfile:
+                fieldnames = ["date","account","ammount","description","payee","category"]
+                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                writer.writeheader()
+                writer.writerows(loaders.filter_dicts([x for x in db_finance.db.master.find({})], fieldnames))
+
+            return redirect(url_for('uploaded_file', filename=fname))
+            flash('File saved successfully', 'success')
+            return redirect(url_for('current_transactions'))
+
+
+    if db_finance.db.master.find_one({}):
+        return render_template('render_data.html', data=[x for x in db_finance.db.master.find({})], page_header='My Transactions')
     else:
-        flash('You have no current stored transactions in master', 'danger')
+        flash('You have no current stored transactions', 'danger')
         return redirect(url_for('home'))
+
+# @app.route('/stored_transactions', methods=['GET'])
+# def stored_transactions():
+#     data = [x for x in db_finance.db.master.find({})]
+#     if data:
+#         return render_template('render_data.html', data=data, page_header='My Transactions')
+#     else:
+#         flash('You have no current stored transactions in master', 'danger')
+#         return redirect(url_for('home'))
 
 @app.route('/upload_file', methods=['GET', 'POST'])
 def upload_file():
