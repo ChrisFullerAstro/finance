@@ -4,6 +4,7 @@ import sys
 import datetime
 import os
 import logging
+import csv
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(levelname)s %(message)s')
@@ -31,9 +32,16 @@ def load_data(fname, dtype='barclays'):
     if dtype == 'barclays':
         logging.info('Using barclays loaders')
         return load_barclays(fname)
-    else:
+    elif dtype == 'barclaycard':
         logging.info('Using barclaycard loaders')
         return load_barclaycard(fname)
+    elif dtype == 'master':
+        logging.info('Loading historical data')
+        return load_master(fname)
+
+def load_master(fname):
+    with open(fname,errors="ignore") as f:
+    return [x for x in csv.DictReader(f)]
 
 
 def load_barclays(fname):
