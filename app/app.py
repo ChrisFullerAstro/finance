@@ -168,9 +168,16 @@ def classfication():
     form = forms.ClassficationForm()
     if request.method == 'POST':
         logging.info("Post method found")
+        if request.form.get('suggestion_button', None) == 'accept_suggestion':
+            ct = session.get('current_transaction')
+            logging.info("Suggested category selected: {0}".format(ct['suggestion']))
+            ct.update({'category':ct['suggestion']})
+            db_finance.db.master.insert_one(loaders.filter_for_master(ct))
+            db_finance.db.current_transactions.insert_one(ct)
+
 
         #check if any cat was SelectField
-        if form.ctype.data:
+        elif form.ctype.data:
             logging.info("Examining form result from form category selected={0}".format(form.ctype.data))
             ct = session.get('current_transaction')
             ct.update({'category':form.ctype.data})
@@ -199,45 +206,18 @@ def classfication():
 
     logging.info('current_transaction after classfication:{0}'.format(json.dumps(current_transaction)))
 
-    #test if suggestions in above automatic limit
-    if automatic and False:
-        logging.info('automatic classfication found')
-        flash('transaction classfied automatically', 'info')
-        ct = session.get('current_transaction')
-        ct.update({'category':current_transaction['suggestions'][0]})
-        logging.info('filter_for_master')
-        fct = loaders.filter_for_master(ct)
+    logging.info('adding choices for user input')
+    form.ctype.choices=[]
+    #set categories as form dropdown options
+    for cat in session.get('categorys', category_selector.get_categorys(db_config.db.categories)):
+        form.ctype.choices.append((cat, cat))
 
-        logging.info('current_transaction after auto ready for injection into master:{0}'.format(json.dumps(fct)))
-        db_finance.db.master.insert_one(fct)
-
-        logging.info('current_transaction after auto ready for injection into current_transactions:{0}'.format(json.dumps(ct)))
-        db_finance.db.current_transactions.insert_one(ct)
-
-        logging.info('redirect after automatic classfication')
-        return redirect(url_for('classfication'))
-
-    #requires user input
-    else:
-        logging.info('requires user input')
-        form.ctype.choices=[]
-        if current_transaction['suggestions'][0]:
-            logging.info('Suggestions found adding to form')
-            form.ctype.choices.append((current_transaction['suggestions'][0], current_transaction['suggestions'][0]))
-            form.ctype.default = current_transaction['suggestions'][0]
-        else:
-            logging.info('No suggestions found so not offering any to user')
-            form.ctype.choices.append((None, 'Select Category'))
-        #set categories as form dropdown options
-        for cat in session.get('categorys', category_selector.get_categorys(db_config.db.categories)):
-            form.ctype.choices.append((cat, cat))
-
-        logging.info('Addging cats to form and rendering classfication.html to user')
-        #render_template
-        return render_template('classfication.html',
-                                already_classfied=[x for x in db_finance.db.current_transactions.find({})],
-                                current_transaction=current_transaction,
-                                form=form)
+    logging.info('Rendering classfication.html to user')
+    #render_template
+    return render_template('classfication.html',
+                            already_classfied=[x for x in db_finance.db.current_transactions.find({})],
+                            current_transaction=current_transaction,
+                            form=form)
 
 
 @app.route('/uploads/<filename>')
