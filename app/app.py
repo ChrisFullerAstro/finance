@@ -77,7 +77,7 @@ def current_transactions():
             logging.info('export transactions')
             fname ='output_'+ str(datetime.date.today()) +'.csv'
             with open(os.path.join(app.config['UPLOAD_FOLDER'], fname), 'w') as csvfile:
-                fieldnames = ["date","account","ammount","description","payee","category"]
+                fieldnames = ["date","account","ammount","comment","payee","category"]
                 writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
                 writer.writeheader()
                 writer.writerows(loaders.filter_dicts([x for x in db_finance.db.current_transactions.find({})], fieldnames))
