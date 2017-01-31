@@ -116,9 +116,7 @@ def upload_file():
         data = loaders.load_data(os.path.join(app.config['UPLOAD_FOLDER'], filename), dtype='master')
         db_finance.db.master.insert_many(data)
         logging.info('Inserting {0} transactions into master'.format(len(data)))
-        return redirect(url_for('stored_transactions') 
-
-
+        return redirect(url_for('stored_transactions'))
 
     else:
         filename = None
