@@ -63,7 +63,7 @@ def current_transactions():
 
         if request.form.get('button', None) == 'commit':
             logging.info('commited transactions')
-            fieldnames = ["date","account","ammount","description","payee","category"]
+            fieldnames = ["date","account","ammount","comment","payee","category"]
             transactions_filtered = loaders.filter_dicts([x for x in db_finance.db.current_transactions.find({})], fieldnames)
             for transaction in transactions_filtered:
                 try:
@@ -77,7 +77,7 @@ def current_transactions():
             logging.info('export transactions')
             fname ='output_'+ str(datetime.date.today()) +'.csv'
             with open(os.path.join(app.config['UPLOAD_FOLDER'], fname), 'w') as csvfile:
-                fieldnames = ["date","account","ammount","description","payee","category"]
+                fieldnames = ["date","account","ammount","comment","payee","category"]
                 writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
                 writer.writeheader()
                 writer.writerows(loaders.filter_dicts([x for x in db_finance.db.current_transactions.find({})], fieldnames))
@@ -93,22 +93,52 @@ def current_transactions():
         flash('You have no current stored transactions', 'danger')
         return redirect(url_for('home'))
 
-@app.route('/stored_transactions', methods=['GET'])
+@app.route('/stored_transactions', methods=['GET', 'POST'])
 def stored_transactions():
-    data = [x for x in db_finance.db.master.find({})]
-    if data:
-        return render_template('render_data.html', data=data, page_header='My Transactions')
+    if request.method == "POST":
+        if request.form.get('button', None) == 'clear':
+            logging.info('clear transactions')
+            db_finance.db.master.delete_many({})
+            flash('Transactions cleared from cache', 'success')
+            return redirect(url_for('home'))
+
+        if request.form.get('button', None) == 'export':
+            logging.info('export transactions')
+            fname ='output_'+ str(datetime.date.today()) +'.csv'
+            with open(os.path.join(app.config['UPLOAD_FOLDER'], fname), 'w') as csvfile:
+                fieldnames = ["date","account","ammount","comment","payee","category"]
+                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                writer.writeheader()
+                writer.writerows(loaders.filter_dicts([x for x in db_finance.db.master.find({})], fieldnames))
+
+            return redirect(url_for('uploaded_file', filename=fname))
+            flash('File saved successfully', 'success')
+            return redirect(url_for('current_transactions'))
+
+
+    if db_finance.db.master.find_one({}):
+        return render_template('render_data.html', data=[x for x in db_finance.db.master.find({})], page_header='My Transactions')
     else:
-        flash('You have no current stored transactions in master', 'danger')
+        flash('You have no current stored transactions', 'danger')
         return redirect(url_for('home'))
+
 
 @app.route('/upload_file', methods=['GET', 'POST'])
 def upload_file():
     form = forms.UploadForm()
-    if form.validate_on_submit():
+    if form.validate_on_submit() and form.dtype.data=='barclays':
         filename = secure_filename(form.file_name.data.filename)
         form.file_name.data.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         return redirect(url_for('processtransactions',filename=filename))
+
+    elif form.validate_on_submit() and form.dtype.data=='master':
+        filename = secure_filename(form.file_name.data.filename)
+        form.file_name.data.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        data = loaders.load_data(os.path.join(app.config['UPLOAD_FOLDER'], filename), dtype='master')
+        db_finance.db.master.insert_many(data)
+        logging.info('Inserting {0} transactions into master'.format(len(data)))
+        return redirect(url_for('stored_transactions'))
+
     else:
         filename = None
     return render_template('upload.html', form=form)
@@ -130,9 +160,16 @@ def classfication():
     form = forms.ClassficationForm()
     if request.method == 'POST':
         logging.info("Post method found")
+        if request.form.get('suggestion_button', None) == 'accept_suggestion':
+            ct = session.get('current_transaction')
+            logging.info("Suggested category selected: {0}".format(ct['suggestion']))
+            ct.update({'category':ct['suggestion']})
+            db_finance.db.master.insert_one(loaders.filter_for_master(ct))
+            db_finance.db.current_transactions.insert_one(ct)
+
 
         #check if any cat was SelectField
-        if form.ctype.data:
+        elif form.ctype.data:
             logging.info("Examining form result from form category selected={0}".format(form.ctype.data))
             ct = session.get('current_transaction')
             ct.update({'category':form.ctype.data})
@@ -161,45 +198,18 @@ def classfication():
 
     logging.info('current_transaction after classfication:{0}'.format(json.dumps(current_transaction)))
 
-    #test if suggestions in above automatic limit
-    if automatic and False:
-        logging.info('automatic classfication found')
-        flash('transaction classfied automatically', 'info')
-        ct = session.get('current_transaction')
-        ct.update({'category':current_transaction['suggestions'][0]})
-        logging.info('filter_for_master')
-        fct = loaders.filter_for_master(ct)
+    logging.info('adding choices for user input')
+    form.ctype.choices=[]
+    #set categories as form dropdown options
+    for cat in session.get('categorys', category_selector.get_categorys(db_config.db.categories)):
+        form.ctype.choices.append((cat, cat))
 
-        logging.info('current_transaction after auto ready for injection into master:{0}'.format(json.dumps(fct)))
-        db_finance.db.master.insert_one(fct)
-
-        logging.info('current_transaction after auto ready for injection into current_transactions:{0}'.format(json.dumps(ct)))
-        db_finance.db.current_transactions.insert_one(ct)
-
-        logging.info('redirect after automatic classfication')
-        return redirect(url_for('classfication'))
-
-    #requires user input
-    else:
-        logging.info('requires user input')
-        form.ctype.choices=[]
-        if current_transaction['suggestions'][0]:
-            logging.info('Suggestions found adding to form')
-            form.ctype.choices.append((current_transaction['suggestions'][0], current_transaction['suggestions'][0]))
-            form.ctype.default = current_transaction['suggestions'][0]
-        else:
-            logging.info('No suggestions found so not offering any to user')
-            form.ctype.choices.append((None, 'Select Category'))
-        #set categories as form dropdown options
-        for cat in session.get('categorys', category_selector.get_categorys(db_config.db.categories)):
-            form.ctype.choices.append((cat, cat))
-
-        logging.info('Addging cats to form and rendering classfication.html to user')
-        #render_template
-        return render_template('classfication.html',
-                                already_classfied=[x for x in db_finance.db.current_transactions.find({})],
-                                current_transaction=current_transaction,
-                                form=form)
+    logging.info('Rendering classfication.html to user')
+    #render_template
+    return render_template('classfication.html',
+                            already_classfied=[x for x in db_finance.db.current_transactions.find({})],
+                            current_transaction=current_transaction,
+                            form=form)
 
 
 @app.route('/uploads/<filename>')
