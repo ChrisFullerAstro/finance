@@ -105,10 +105,19 @@ def stored_transactions():
 @app.route('/upload_file', methods=['GET', 'POST'])
 def upload_file():
     form = forms.UploadForm()
-    if form.validate_on_submit():
+    if form.validate_on_submit() and form.dtype.data=='barclays':
         filename = secure_filename(form.file_name.data.filename)
         form.file_name.data.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         return redirect(url_for('processtransactions',filename=filename))
+
+    elif form.validate_on_submit() and form.dtype.data=='master':
+        filename = secure_filename(form.file_name.data.filename)
+        form.file_name.data.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        data = loaders.load_data(os.path.join(app.config['UPLOAD_FOLDER'], filename), dtype='master')
+        db_finance.db.master.insert_many(data)
+        logging.info('Inserting {0} transactions into master'.format(len(data)))
+        return redirect(url_for('stored_transactions'))
+
     else:
         filename = None
     return render_template('upload.html', form=form)
