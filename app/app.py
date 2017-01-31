@@ -93,7 +93,7 @@ def current_transactions():
         flash('You have no current stored transactions', 'danger')
         return redirect(url_for('home'))
 
-@app.route('/stored_transactions', methods=['GET'])
+@app.route('/stored_transactions', methods=['GET', 'POST'])
 def stored_transactions():
     if request.method == "POST":
         if request.form.get('button', None) == 'clear':
